@@ -1,0 +1,9 @@
+**/target/
+/.idea/
+**/logs
+*.iml
+**/*.jar
+*.jenkinsfile
+README_INTERNAL.md
+epa-ps-sim-app/src/main/resources/keys/GEMATIK-IOP-2.p12
+epa-ps-sim-app/src/main/resources/application-gematik.yaml

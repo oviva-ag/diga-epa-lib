@@ -1,0 +1,45 @@
+# .gitattributes snippet to force users to use same line endings for project.
+# 
+# Handle line endings automatically for files detected as text
+# and leave all files detected as binary untouched.
+* text=auto
+
+#
+# The above will handle all files NOT found below
+# https://help.github.com/articles/dealing-with-line-endings/
+
+# These files are text and should be normalized (Convert crlf => lf)
+*.java text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.htm text eol=lf
+*.html text eol=lf
+*.xml text eol=lf
+*.txt text eol=lf
+*.ini text eol=lf
+*.inc text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.properties text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+
+# These files are binary and should be left untouched
+# (binary is a macro for -text -diff)
+*.p12 binary
+*.jks binary
+*.bks binary
+*.crt binary
+*.prv binary
+*.pub binary
+*.der binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary

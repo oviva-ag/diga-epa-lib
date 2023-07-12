@@ -1,0 +1,46 @@
+{
+  "documentSets": [
+    {
+      "documentMetadata": {
+        "author": [
+          {
+            "identifier": "165746304",
+            "familyName": "Lichterbaum",
+            "givenName": "Martin",
+            "title": "Dr.",
+            "authorInstitution": [
+              {
+                "name": "arztpraxis",
+                "identifier": "1-SMC-B-Testkarte-883110000092397"
+              }
+            ],
+            "authorRole": [
+              "11^^^&1.3.6.1.4.1.19376.3.276.1.5.13&ISO"
+            ]
+          }
+        ],
+        "classCode": "AUS",
+        "eventCodeList": [
+          "H1"
+        ],
+        "confidentialityCode": [
+          "N"
+        ],
+        "creationTime": "2023-05-15T11:12:01Z",
+        "formatCode": "urn:gematik:ig:KinderuntersuchungsheftUntersuchungen:v1.0.0",
+        "healthcareFacilityTypeCode": "PRA",
+        "languageCode": "de-DE",
+        "mimeType": "application/fhir+xml",
+        "practiceSettingCode": "ALLG",
+        "title": "Untersuchungen",
+        "serviceStartTime": "2021-06-01T08:28:55.194Z",
+        "serviceStopTime": "2021-06-01T08:38:55.194Z",
+        "typeCode": "BERI",
+        "uri": "untersuchungen.xml"
+      },
+      "documentData": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iSVNPLTg4NTktMTUiPz48RFBFOkRQRV9Eb2N1bWVudCB4bWxucz0iaHR0cDovL3dzLmdlbWF0aWsuZGUvZmEvbmZkcy9jb21tb24vTkZETV9Db21tb24vdjEuMSIgeG1sbnM6RFBFPSJodHRwOi8vd3MuZ2VtYXRpay5kZS9mYS9uZmRzL0RQRV9Eb2N1bWVudC92MS4xIiBEUEVfVmVyc2lvbj0iMS4xLjAiPjxEUEU6UGVyc29lbmxpY2hlX0Vya2xhZXJ1bmdlbiBJRF9EUEU9IjEuMi4yNzYuMC43Ni43LjkiIERQRV9sZXR6dGVfQWt0dWFsaXNpZXJ1bmdfZGF0ZT0iMjAyMi0xMC0wOCIgRFBFX2xldHp0ZV9Ba3R1YWxpc2llcnVuZ190aW1lPSIxMToxNjoxNSswMjowMCI+PERQRTpEUEVfVmVyc2ljaGVydGVyPjxWZXJzaWNoZXJ0ZXI+PFZlcnNpY2hlcnRlbl9JRD5YMTEwNDA1Mzk0PC9WZXJzaWNoZXJ0ZW5fSUQ+PEdlYnVydHNkYXR1bT4xOTc5MDYwNTwvR2VidXJ0c2RhdHVtPjxWb3JuYW1lPkphY3F1ZWxpbmU8L1Zvcm5hbWU+PE5hY2huYW1lPk3DvGxsZXI8L05hY2huYW1lPjxUaXRlbD5Eci48L1RpdGVsPjxHZXNjaGxlY2h0Plg8L0dlc2NobGVjaHQ+PC9WZXJzaWNoZXJ0ZXI+PC9EUEU6RFBFX1ZlcnNpY2hlcnRlcj48RFBFOkRQRV9HZXdlYmVfT3JnYW5zcGVuZGVlcmtsYWVydW5nIERQRV9HT19sZXR6dGVfQWt0dWFsaXNpZXJ1bmc9IjIwMjItMDctMDYrMDI6MDAiPjxEUEU6RFBFX0dPX0FibGFnZW9ydD48QWRyZXNzZT48UG9zdGxlaXR6YWhsPjgwNTQxPC9Qb3N0bGVpdHphaGw+PE9ydD5N77+9bmNoZW48L09ydD48U3RyYXNzZT5UaXJvbGVyIFBsYXR6PC9TdHJhc3NlPjxIYXVzbnVtbWVyPjIzPC9IYXVzbnVtbWVyPjxBbnNjaHJpZnRlbnp1c2F0ei8+PFdvaG5zaXR6bGFlbmRlcmNvZGUvPjwvQWRyZXNzZT48L0RQRTpEUEVfR09fQWJsYWdlb3J0PjxEUEU6RFBFX0dPX0Jlc2NocmVpYnVuZz5JbSBTY2hsYWZ6aW1tZXIgaW0gTmFjaHRrw6RzdGNoZW48L0RQRTpEUEVfR09fQmVzY2hyZWlidW5nPjwvRFBFOkRQRV9HZXdlYmVfT3JnYW5zcGVuZGVlcmtsYWVydW5nPjxEUEU6RFBFX1BhdGllbnRlbnZlcmZ1ZWd1bmcgRFBFX1BWX2xldHp0ZV9Ba3R1YWxpc2llcnVuZz0iMjAyMi0wNy0wNiswMjowMCI+PERQRTpEUEVfUFZfQWJsYWdlb3J0PjxBZHJlc3NlPjxQb3N0bGVpdHphaGw+ODA1NDE8L1Bvc3RsZWl0emFobD48T3J0Pk3vv71uY2hlbjwvT3J0PjxTdHJhc3NlPlRpcm9sZXIgUGxhdHo8L1N0cmFzc2U+PEhhdXNudW1tZXI+MjM8L0hhdXNudW1tZXI+PEFuc2NocmlmdGVuenVzYXR6Lz48V29obnNpdHpsYWVuZGVyY29kZS8+PC9BZHJlc3NlPjwvRFBFOkRQRV9QVl9BYmxhZ2VvcnQ+PERQRTpEUEVfUFZfQmVzY2hyZWlidW5nPkltIFdvaG56aW1tZXIgaW4gZGVyIEtvbW1vZGUgaW4gZGVyIG9iZXJzdGVuIFNjaHVibGFkZTwvRFBFOkRQRV9QVl9CZXNjaHJlaWJ1bmc+PC9EUEU6RFBFX1BhdGllbnRlbnZlcmZ1ZWd1bmc+PC9EUEU6UGVyc29lbmxpY2hlX0Vya2xhZXJ1bmdlbj48L0RQRTpEUEVfRG9jdW1lbnQ+",
+      "entryUUIDOfDocumentToReplace": "etj29t-neeor84-fnwg4-23f2gg"
+    }
+  ],
+  "kvnr": "X110435031"
+}

@@ -1,0 +1,5 @@
+    <jaxws:bindings
+        wsdlLocation="../resources/schemas/conn/EventService.wsdl"
+        xmlns:jaxws="https://jakarta.ee/xml/ns/jaxws">
+    <jaxws:package name="telematik.ws.conn.eventservice.wsdl.v6_1"/>
+</jaxws:bindings>
