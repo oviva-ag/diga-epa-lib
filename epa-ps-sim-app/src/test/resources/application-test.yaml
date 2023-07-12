@@ -1,0 +1,5 @@
+konnektor:
+  connection:
+    tlsconfig:
+      keystorepath: test.p12
+      keystorepassword: test1234

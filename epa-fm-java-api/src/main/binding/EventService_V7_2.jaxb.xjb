@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jaxb:bindings version="3.0" xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+               schemaLocation="../resources/schemas/conn/EventService.xsd" node="/xs:schema">
+        <jaxb:schemaBindings>
+            <jaxb:package name="telematik.ws.conn.eventservice.xsd.v6_1"/>
+        </jaxb:schemaBindings>
+</jaxb:bindings>

@@ -1,0 +1,5 @@
+<jaxws:bindings
+        wsdlLocation="../resources/schemas/conn/CardService_v8_1_2.wsdl"
+        xmlns:jaxws="https://jakarta.ee/xml/ns/jaxws">
+    <jaxws:package name="telematik.ws.conn.cardservice.wsdl.v8_1"/>
+</jaxws:bindings>

@@ -1,0 +1,5 @@
+    <jaxws:bindings
+        wsdlLocation="../resources/schemas/conn/CertificateService_v6_0_1.wsdl"
+        xmlns:jaxws="https://jakarta.ee/xml/ns/jaxws">
+    <jaxws:package name="telematik.ws.conn.certificateservice.wsdl.v6_0"/>
+</jaxws:bindings>

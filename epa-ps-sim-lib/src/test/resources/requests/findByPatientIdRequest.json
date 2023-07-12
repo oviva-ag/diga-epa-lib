@@ -1,0 +1,10 @@
+{
+  "queryData": {
+      "$XDSDocumentEntryStatus": [
+        "urn:oasis:names:tc:ebxml-regrep:StatusType:Approved"
+      ]
+  },
+  "query": "FindDocuments",
+  "kvnr": "X110417159",
+  "returnType": "leafClass"
+}
