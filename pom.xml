@@ -7,7 +7,7 @@
     <groupId>de.gematik.epa</groupId>
     <artifactId>epa-ps-sim</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <name>epa-ps-sim</name>
     <description>Simplified REST interface and implementation to run ePA operations of the Konnektor</description>
     <url>https://github.com/gematik/epa-ps-sim</url>
@@ -40,7 +40,7 @@
             <dependency>
                 <groupId>de.gematik.epa</groupId>
                 <artifactId>lib-ihe-xds</artifactId>
-                <version>1.0.2-74</version>
+                <version>1.0.2</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.ws.rs</groupId>
