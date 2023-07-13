@@ -2,6 +2,11 @@
 
 # Release notes ePA-PS-Sim
 
+## Release 1.1.1
+
+### fixed
+- Wrong version information for lib-ihe-xds in pom
+
 ## Release 1.1.0
 
 ### added
