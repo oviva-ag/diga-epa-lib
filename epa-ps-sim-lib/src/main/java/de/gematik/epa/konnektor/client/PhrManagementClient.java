@@ -16,22 +16,45 @@
 
 package de.gematik.epa.konnektor.client;
 
+import de.gematik.epa.konnektor.KonnektorContextProvider;
+import de.gematik.epa.konnektor.KonnektorInterfaceAssembly;
+import de.gematik.epa.konnektor.SmbInformationProvider;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
-import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_0.PHRManagementServicePortType;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.GetAuthorizationState;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.GetAuthorizationStateResponse;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.RequestFacilityAuthorization;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.RequestFacilityAuthorizationResponse;
+import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_5.PHRManagementServicePortType;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetAuthorizationState;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetAuthorizationStateResponse;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.RequestFacilityAuthorization;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.RequestFacilityAuthorizationResponse;
+import telematik.ws.conn.phrs.phrservice.xsd.v2_0.ContextHeader;
 
-@RequiredArgsConstructor
 @Getter
 @Accessors(fluent = true)
-public class PhrManagementClient {
+public class PhrManagementClient extends KonnektorServiceClient {
 
-  private final PHRManagementServicePortType phrManagementService;
+  private PHRManagementServicePortType phrManagementService;
+
+  private ContextHeader contextHeader;
+
+  private final String kvnr;
+
+  @Getter(lazy = true)
+  private final SmbInformationProvider smbInformationProvider =
+      new SmbInformationProvider(konnektorContextProvider, konnektorInterfaceAssembly);
+
+  @Getter(lazy = true)
+  private final EventServiceClient eventServiceClient =
+      smbInformationProvider().eventServiceClient();
+
+  public PhrManagementClient(
+      KonnektorContextProvider konnektorContextProvider,
+      KonnektorInterfaceAssembly konnektorInterfaceAssembly,
+      String kvnr) {
+    super(konnektorContextProvider, konnektorInterfaceAssembly);
+    this.kvnr = kvnr;
+    runInitializationSynchronized();
+  }
 
   public RequestFacilityAuthorizationResponse requestFacilityAuthorization(
       @NonNull RequestFacilityAuthorization request) {
@@ -41,5 +64,11 @@ public class PhrManagementClient {
   public GetAuthorizationStateResponse requestGetAuthorizationState(
       @NonNull GetAuthorizationState request) {
     return phrManagementService.getAuthorizationState(request);
+  }
+
+  @Override
+  protected void initialize() {
+    contextHeader = konnektorContextProvider.createContextHeader(kvnr);
+    phrManagementService = konnektorInterfaceAssembly.phrManagementService();
   }
 }

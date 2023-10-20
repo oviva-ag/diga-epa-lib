@@ -22,8 +22,6 @@ import java.util.List;
 import org.junit.jupiter.api.function.ThrowingSupplier;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mockito;
-import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_0.PHRManagementServicePortType;
 
 class EpaPsSimConfigurationTest {
 
@@ -38,13 +36,6 @@ class EpaPsSimConfigurationTest {
   private static List<ThrowingSupplier<?>> beanMethodCalls() {
     var tstObj = new EpaPsSimConfiguration(new DefaultdataConfig(null));
 
-    return List.of(
-        tstObj::defaultdataProvider,
-        tstObj::konnektorContextProvider,
-        tstObj::konnektorInterfaceProvider,
-        tstObj::certificateServiceClient,
-        tstObj::eventServiceClient,
-        tstObj::smbInformationProvider,
-        () -> tstObj.phrManagementClient(Mockito.mock(PHRManagementServicePortType.class)));
+    return List.of(tstObj::defaultdataProvider);
   }
 }

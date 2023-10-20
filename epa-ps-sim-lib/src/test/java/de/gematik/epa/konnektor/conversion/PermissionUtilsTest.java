@@ -24,7 +24,7 @@ import de.gematik.epa.dto.request.PermissionHcpoRequest;
 import de.gematik.epa.utils.XmlUtils;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.DocumentCategoryEnum;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.DocumentCategoryEnum;
 
 class PermissionUtilsTest {
 

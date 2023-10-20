@@ -26,8 +26,8 @@ import de.gematik.epa.dto.response.ResponseDTO;
 import de.gematik.epa.ihe.model.response.RegistryObjectLists;
 import de.gematik.epa.ihe.model.response.RetrieveDocumentElement;
 import de.gematik.epa.ihe.model.simple.ByteArray;
-import de.gematik.epa.konnektor.KonnektorInterfaceProvider;
 import de.gematik.epa.unit.util.ResourceLoader;
+import de.gematik.epa.unit.util.TestBase;
 import de.gematik.epa.unit.util.TestDataFactory;
 import ihe.iti.xds_b._2007.ProvideAndRegisterDocumentSetRequestType;
 import ihe.iti.xds_b._2007.RetrieveDocumentSetRequestType;
@@ -35,21 +35,25 @@ import ihe.iti.xds_b._2007.RetrieveDocumentSetResponseType;
 import java.util.List;
 import oasis.names.tc.ebxml_regrep.xsd.lcm._3.RemoveObjectsRequest;
 import oasis.names.tc.ebxml_regrep.xsd.query._3.AdhocQueryRequest;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import telematik.ws.conn.eventservice.wsdl.v6_1.FaultMessage;
 import telematik.ws.conn.phrs.phrservice.wsdl.v2_0.PHRServicePortType;
 import telematik.ws.conn.phrs.phrservice.xsd.v2_0.ContextHeader;
+import telematik.ws.conn.signatureservice.xsd.v7_5.GetJobNumberResponse;
 
-class DocumentApiImplTest {
-  private final DocumentApiImpl documentApi = new DocumentApiImpl();
+class DocumentApiImplTest extends TestBase {
 
-  PHRServicePortType phrServiceMock =
-      KonnektorInterfaceProvider.defaultInstance().getKonnektorInterfaceAssembly().phrService();
+  private final DocumentApiImpl documentApi =
+      new DocumentApiImpl(
+          konnektorContextProvider(), konnektorInterfaceAssembly(), defaultdataProvider());
 
-  @BeforeAll
-  static void init() {
-    TestDataFactory.initKonnektorTestConfiguration();
+  PHRServicePortType phrServiceMock = konnektorInterfaceAssembly().phrService();
+
+  @BeforeEach
+  void init() {
+    TestDataFactory.initKonnektorTestConfiguration(konnektorInterfaceAssembly());
   }
 
   @Test
@@ -151,7 +155,7 @@ class DocumentApiImplTest {
 
   @Test
   void replaceDocumentsExceptionTest() {
-    var exception = new RuntimeException("These data are not what I expected");
+    var exception = new RuntimeException("I am the expected exception");
     Mockito.when(
             phrServiceMock.documentRepositoryProvideAndRegisterDocumentSetB(
                 Mockito.any(ContextHeader.class),
@@ -170,7 +174,7 @@ class DocumentApiImplTest {
 
   @Test
   void putDocumentsExceptionTest() {
-    var exception = new RuntimeException("These data are not what I expected");
+    var exception = new RuntimeException("I am the expected exception");
     Mockito.when(
             phrServiceMock.documentRepositoryProvideAndRegisterDocumentSetB(
                 Mockito.any(ContextHeader.class),
@@ -188,7 +192,7 @@ class DocumentApiImplTest {
 
   @Test
   void retrieveDocumentsExceptionTest() {
-    var exception = new RuntimeException("These data are not what I expected");
+    var exception = new RuntimeException("I am the expected exception");
     Mockito.when(
             phrServiceMock.documentRepositoryRetrieveDocumentSet(
                 Mockito.any(ContextHeader.class),
@@ -207,7 +211,7 @@ class DocumentApiImplTest {
 
   @Test
   void deleteDocumentsExceptionTest() {
-    var exception = new RuntimeException("These data are not what I expected");
+    var exception = new RuntimeException("I am the expected exception");
     Mockito.when(
             phrServiceMock.documentRegistryDeleteDocumentSet(
                 Mockito.any(ContextHeader.class), Mockito.any(RemoveObjectsRequest.class)))
@@ -226,7 +230,7 @@ class DocumentApiImplTest {
 
   @Test
   void findExceptionTest() {
-    var exception = new RuntimeException("These data are not what I expected");
+    var exception = new RuntimeException("I am the expected exception");
     Mockito.when(
             phrServiceMock.documentRegistryRegistryStoredQuery(
                 Mockito.any(ContextHeader.class), Mockito.any(AdhocQueryRequest.class)))
@@ -239,5 +243,42 @@ class DocumentApiImplTest {
     assertNotNull(actualResponseDTO);
     assertFalse(actualResponseDTO.success());
     assertTrue(actualResponseDTO.statusMessage().contains(exception.getMessage()));
+  }
+
+  @Test
+  void signDocumentTest() {
+    Mockito.when(konnektorInterfaceAssembly().eventService().getCards(Mockito.any()))
+        .thenReturn(TestDataFactory.getCardsSmbResponse());
+    Mockito.when(konnektorInterfaceAssembly().signatureService().getJobNumber(Mockito.any()))
+        .thenReturn(new GetJobNumberResponse().withJobNumber("Job001"));
+    Mockito.when(konnektorInterfaceAssembly().signatureService().signDocument(Mockito.any()))
+        .thenReturn(TestDataFactory.getSignDocumentResponse());
+
+    var signRequest = ResourceLoader.signDocumentRequest();
+
+    var response = assertDoesNotThrow(() -> documentApi.signDocument(signRequest));
+
+    assertNotNull(response);
+    assertTrue(response.success());
+    assertNotNull(response.signatureObject());
+    assertNotNull(response.signatureForm());
+  }
+
+  @Test
+  void signDocumentExceptionTest() {
+    var exceptionMsg = "No card terminal active";
+    Mockito.when(konnektorInterfaceAssembly().eventService().getCards(Mockito.any()))
+        .thenThrow(new FaultMessage(exceptionMsg, TestDataFactory.getTelematikError()));
+
+    var signRequest = ResourceLoader.signDocumentRequest();
+
+    var response = assertDoesNotThrow(() -> documentApi.signDocument(signRequest));
+
+    assertNotNull(response);
+    assertFalse(response.success());
+    assertNull(response.signatureObject());
+    assertNull(response.signatureForm());
+    assertNotNull(response.statusMessage());
+    assertTrue(response.statusMessage().contains(exceptionMsg));
   }
 }

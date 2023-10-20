@@ -19,35 +19,34 @@ package de.gematik.epa.konnektor;
 import static de.gematik.epa.unit.util.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import de.gematik.epa.unit.util.TestBase;
 import de.gematik.epa.unit.util.TestDataFactory;
 import java.util.MissingResourceException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_0.FaultMessage;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.GetHomeCommunityID;
+import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_5.FaultMessage;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetHomeCommunityID;
 
-class KonnektorContextProviderTest {
+class KonnektorContextProviderTest extends TestBase {
 
   @BeforeEach
   void beforeEach() {
-    TestDataFactory.initKonnektorTestConfiguration();
+    TestDataFactory.initKonnektorTestConfiguration(konnektorInterfaceAssembly());
   }
 
   @SneakyThrows
   @Test
   void createContextHeaderTest() {
-    var firstResult =
-        assertDoesNotThrow(
-            () ->
-                KonnektorContextProvider.defaultInstance()
-                    .createContextHeader(TestDataFactory.KVNR));
+    var tstObj =
+        new KonnektorContextProvider(
+            konnektorConfigurationProvider(), konnektorInterfaceAssembly());
+    var firstResult = assertDoesNotThrow(() -> tstObj.createContextHeader(TestDataFactory.KVNR));
 
     assertEquals(TestDataFactory.contextHeader(), firstResult);
 
-    var secondResult =
-        assertDoesNotThrow(() -> KonnektorContextProvider.defaultInstance().getContextHeader());
+    var secondResult = assertDoesNotThrow(() -> tstObj.getContextHeader());
 
     assertSame(firstResult, secondResult);
   }
@@ -55,28 +54,21 @@ class KonnektorContextProviderTest {
   @SneakyThrows
   @Test
   void contextProviderCacheTest() {
-    var firstResult =
-        assertDoesNotThrow(
-            () ->
-                KonnektorContextProvider.defaultInstance()
-                    .createContextHeader(TestDataFactory.KVNR));
+    var tstObj =
+        new KonnektorContextProvider(
+            konnektorConfigurationProvider(), konnektorInterfaceAssembly());
 
-    var phrManagementServiceMock =
-        KonnektorInterfaceProvider.defaultInstance()
-            .getKonnektorInterfaceAssembly()
-            .phrManagementService();
+    var firstResult = assertDoesNotThrow(() -> tstObj.createContextHeader(TestDataFactory.KVNR));
+
+    var phrManagementServiceMock = konnektorInterfaceAssembly().phrManagementService();
     Mockito.when(phrManagementServiceMock.getHomeCommunityID(Mockito.any(GetHomeCommunityID.class)))
         .thenThrow(
             new FaultMessage(
                 "The PHRManagementService should not have been called a second time for the same KVNR"));
 
-    assertDoesNotThrow(() -> KonnektorContextProvider.defaultInstance().removeContextHeader());
+    assertDoesNotThrow(tstObj::removeContextHeader);
 
-    var secondResult =
-        assertDoesNotThrow(
-            () ->
-                KonnektorContextProvider.defaultInstance()
-                    .createContextHeader(TestDataFactory.KVNR));
+    var secondResult = assertDoesNotThrow(() -> tstObj.createContextHeader(TestDataFactory.KVNR));
 
     assertEquals(firstResult, secondResult);
     assertNotSame(firstResult, secondResult);
@@ -84,7 +76,10 @@ class KonnektorContextProviderTest {
 
   @Test
   void getContextTest() {
-    var context = assertDoesNotThrow(() -> KonnektorContextProvider.defaultInstance().getContext());
+    var tstObj =
+        new KonnektorContextProvider(
+            konnektorConfigurationProvider(), konnektorInterfaceAssembly());
+    var context = assertDoesNotThrow(tstObj::getContext);
 
     assertNotNull(context);
     assertEquals(TestDataFactory.contextHeader().getContext(), context);
@@ -92,9 +87,12 @@ class KonnektorContextProviderTest {
 
   @Test
   void getContextFromHeaderTest() {
-    KonnektorContextProvider.defaultInstance().createContextHeader(TestDataFactory.KVNR);
+    var tstObj =
+        new KonnektorContextProvider(
+            konnektorConfigurationProvider(), konnektorInterfaceAssembly());
+    tstObj.createContextHeader(TestDataFactory.KVNR);
 
-    var context = assertDoesNotThrow(() -> KonnektorContextProvider.defaultInstance().getContext());
+    var context = assertDoesNotThrow(tstObj::getContext);
 
     assertNotNull(context);
     assertEquals(TestDataFactory.contextType(), context);
@@ -102,19 +100,22 @@ class KonnektorContextProviderTest {
 
   @Test
   void getContextThrowsTest() {
-    var konCtxProvider = KonnektorContextProvider.defaultInstance();
-
-    konCtxProvider.konnektorContext(null);
-    konCtxProvider.removeContextHeader();
+    var konCfgProvider =
+        new KonnektorConfigurationProvider(
+            TestDataFactory.createKonnektorConfiguration().context(null));
+    var konCtxProvider = new KonnektorContextProvider(konCfgProvider, konnektorInterfaceAssembly());
 
     assertThrows(MissingResourceException.class, konCtxProvider::getContext);
   }
 
   @Test
   void getRecordIdentifierTest() {
-    KonnektorContextProvider.defaultInstance().createContextHeader(TestDataFactory.KVNR);
+    var tstObj =
+        new KonnektorContextProvider(
+            konnektorConfigurationProvider(), konnektorInterfaceAssembly());
+    tstObj.createContextHeader(TestDataFactory.KVNR);
 
-    var recordIdentifier = KonnektorContextProvider.defaultInstance().getRecordIdentifier();
+    var recordIdentifier = tstObj.getRecordIdentifier();
 
     assertNotNull(recordIdentifier);
     assertEquals(TestDataFactory.recordIdentifier(), recordIdentifier);
@@ -122,7 +123,9 @@ class KonnektorContextProviderTest {
 
   @Test
   void getRecordIdentifierThrowsTest() {
-    var konCtxProvider = KonnektorContextProvider.defaultInstance();
+    var konCtxProvider =
+        new KonnektorContextProvider(
+            konnektorConfigurationProvider(), konnektorInterfaceAssembly());
     konCtxProvider.removeContextHeader();
 
     assertThrows(MissingResourceException.class, konCtxProvider::getRecordIdentifier);

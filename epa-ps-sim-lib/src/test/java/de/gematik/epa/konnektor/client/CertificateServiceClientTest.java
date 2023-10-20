@@ -18,8 +18,8 @@ package de.gematik.epa.konnektor.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import de.gematik.epa.konnektor.KonnektorInterfaceProvider;
 import de.gematik.epa.unit.util.KonnektorInterfaceAnswer;
+import de.gematik.epa.unit.util.TestBase;
 import de.gematik.epa.unit.util.TestDataFactory;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -33,19 +33,18 @@ import telematik.ws.conn.certificateservice.xsd.v6_0.ReadCardCertificate;
 import telematik.ws.conn.certificateservice.xsd.v6_0.ReadCardCertificateResponse;
 
 @Accessors(fluent = true)
-class CertificateServiceClientTest {
+class CertificateServiceClientTest extends TestBase {
 
-  CertificateServiceClient tstObj = new CertificateServiceClient();
+  CertificateServiceClient tstObj =
+      new CertificateServiceClient(konnektorContextProvider(), konnektorInterfaceAssembly());
 
   @Getter(lazy = true)
   private final CertificateServicePortType certPortMock =
-      KonnektorInterfaceProvider.defaultInstance()
-          .getKonnektorInterfaceAssembly()
-          .certificateService();
+      konnektorInterfaceAssembly().certificateService();
 
   @BeforeEach
   void initTest() {
-    TestDataFactory.initKonnektorTestConfiguration();
+    TestDataFactory.initKonnektorTestConfiguration(konnektorInterfaceAssembly());
   }
 
   @SneakyThrows

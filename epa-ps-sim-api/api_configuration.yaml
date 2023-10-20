@@ -1,0 +1,19 @@
+resourcePackages:
+  - "de.gematik.epa.api"
+openAPI31: true
+openAPI:
+  info:
+    title: "ePA-PS-Sim-API"
+    version: ${project.version}
+    description: "Auf der Schnittstelle werden Operationen definiert, um die Ausführung von ePA-FM Operationen des Konnektors zu triggern. 
+      Die Definition dieser Schnittstelle als Java-Bibliothek findet man in dem epa-ps-sim Modul ${project.parent.url}/tree/main/${project.artifactId}, 
+      eine Implementierung als Java-Bibliothek in dem epa-ps-sim Modul ${project.parent.url}/tree/main/epa-ps-sim-lib, 
+      und eine Spring-Boot Standalone-Applikation, die die API umsetzt im epa-ps-sim Modul ${project.parent.url}/tree/main/epa-ps-sim-app"
+    contact:
+      name: ${project.organization.name}
+      email: "OSPO@gematik.de"
+      url: ${project.organization.url}
+    license:
+      name: "Apache 2.0"
+      url: "https://www.apache.org/licenses/LICENSE-2.0"
+

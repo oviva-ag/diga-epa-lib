@@ -17,21 +17,14 @@
 package de.gematik.epa.ps.config;
 
 import de.gematik.epa.config.DefaultdataProvider;
-import de.gematik.epa.konnektor.KonnektorContextProvider;
-import de.gematik.epa.konnektor.KonnektorInterfaceProvider;
-import de.gematik.epa.konnektor.SmbInformationProvider;
-import de.gematik.epa.konnektor.client.CertificateServiceClient;
-import de.gematik.epa.konnektor.client.EventServiceClient;
-import de.gematik.epa.konnektor.client.PhrManagementClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_0.PHRManagementServicePortType;
 
 @Configuration
+@EnableConfigurationProperties(DefaultdataConfig.class)
 @RequiredArgsConstructor
 @Slf4j
 public class EpaPsSimConfiguration {
@@ -40,43 +33,6 @@ public class EpaPsSimConfiguration {
 
   @Bean
   public DefaultdataProvider defaultdataProvider() {
-    log.debug("Defaultdata: {}", defaultdata);
-    return DefaultdataProvider.defaultInstance().defaultdata(defaultdata);
-  }
-
-  @Bean
-  public KonnektorContextProvider konnektorContextProvider() {
-    return KonnektorContextProvider.defaultInstance();
-  }
-
-  @Bean
-  public KonnektorInterfaceProvider konnektorInterfaceProvider() {
-    return KonnektorInterfaceProvider.defaultInstance();
-  }
-
-  @Bean
-  @Lazy
-  public CertificateServiceClient certificateServiceClient() {
-    return new CertificateServiceClient();
-  }
-
-  @Bean
-  @Lazy
-  public EventServiceClient eventServiceClient() {
-    return new EventServiceClient();
-  }
-
-  @Bean
-  @Lazy
-  public SmbInformationProvider smbInformationProvider() {
-    return SmbInformationProvider.defaultInstance();
-  }
-
-  @Bean
-  @Lazy
-  @Autowired
-  public PhrManagementClient phrManagementClient(
-      PHRManagementServicePortType phrManagementService) {
-    return new PhrManagementClient(phrManagementService);
+    return new DefaultdataProvider().defaultdata(defaultdata);
   }
 }

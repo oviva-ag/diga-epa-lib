@@ -1,0 +1,5 @@
+    <jaxws:bindings
+        wsdlLocation="../resources/schemas/conn/phrs/PHRManagementService_V2_5_2.wsdl"
+        xmlns:jaxws="https://jakarta.ee/xml/ns/jaxws">
+    <jaxws:package name="telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_5"/>
+</jaxws:bindings>

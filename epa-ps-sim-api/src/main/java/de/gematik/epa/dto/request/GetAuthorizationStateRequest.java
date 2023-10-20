@@ -16,4 +16,11 @@
 
 package de.gematik.epa.dto.request;
 
-public record GetAuthorizationStateRequest(String kvnr) {}
+import static de.gematik.epa.constants.Documentation.KVNR_DESCRIPTION;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Request für den Abruf des AuthorizationState eines Aktenkontos")
+public record GetAuthorizationStateRequest(
+    @JsonProperty(required = true) @Schema(description = KVNR_DESCRIPTION) String kvnr) {}

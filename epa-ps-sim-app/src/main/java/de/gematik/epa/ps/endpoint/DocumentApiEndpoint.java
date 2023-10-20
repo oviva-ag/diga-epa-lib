@@ -17,6 +17,9 @@
 package de.gematik.epa.ps.endpoint;
 
 import de.gematik.epa.api.impl.DocumentApiImpl;
+import de.gematik.epa.config.DefaultdataProvider;
+import de.gematik.epa.konnektor.KonnektorContextProvider;
+import de.gematik.epa.konnektor.KonnektorInterfaceAssembly;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,4 +28,12 @@ import org.springframework.stereotype.Service;
  * It is autoconfigured through the cxf-spring-boot-starter-jaxrs, so no manual setup is required
  */
 @Service
-public final class DocumentApiEndpoint extends DocumentApiImpl {}
+public final class DocumentApiEndpoint extends DocumentApiImpl {
+
+  public DocumentApiEndpoint(
+      KonnektorContextProvider contextProvider,
+      KonnektorInterfaceAssembly konnektorInterfaceAssembly,
+      DefaultdataProvider defaultdataProvider) {
+    super(contextProvider, konnektorInterfaceAssembly, defaultdataProvider);
+  }
+}

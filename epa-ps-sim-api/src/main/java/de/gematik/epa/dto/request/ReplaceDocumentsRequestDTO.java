@@ -16,7 +16,18 @@
 
 package de.gematik.epa.dto.request;
 
+import static de.gematik.epa.constants.Documentation.KVNR_DESCRIPTION;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.gematik.epa.ihe.model.document.ReplaceDocument;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
-public record ReplaceDocumentsRequestDTO(String kvnr, List<ReplaceDocument> documentSets) {}
+@Schema(description = "Request um Dokumente in einem Aktenkonto zu ersetzen")
+public record ReplaceDocumentsRequestDTO(
+    @JsonProperty(required = true) @Schema(description = KVNR_DESCRIPTION) String kvnr,
+    @JsonProperty(required = true)
+        @Schema(
+            description =
+                "Liste von Dokumenten, den zugehörigen Metadaten und der entryUUID des jeweils zu ersetzenden Dokuments")
+        List<ReplaceDocument> documentSets) {}

@@ -19,17 +19,19 @@ konnektor:
   connection:
     address:
       protocol: https
-      host: ${KONNEKTOR_HOST:kon33.e2e-test.gematik.solutions/}
+      host: ${KONNEKTOR_HOST:kon33.e2e-test.gematik.solutions}
       port: ${KONNEKTOR_PORT:443}
-    tlsconfig:
-      keystorepath: keys/tlsClient.p12
+    tlsConfig:
+      keystorefile:
+        filePath: keys/tlsClient.p12
       keystorepassword: '12345678'
       keystoretype: PKCS12
-    proxyaddress:
+      ciphersuites: TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+    proxyAddress:
       enabled: ${KONNEKTOR_PROXY_ENABLED:false}
       address: ${KONNEKTOR_PROXY_HOSTNAME:192.168.1.254}
       port: ${KONNEKTOR_PROXY_PORT:3128}
-    basicauthentication:
+    basicAuthentication:
       enabled: ${BASIC_AUTHENTICATION_ENABLED:false}
       username: ${BASIC_AUTHENTICATION_USERNAME:authUser}
       password: ${BASIC_AUTHENTICATION_PASSWORD:authPwd}
@@ -57,11 +59,8 @@ info:
     description: '@project.description@'
 
 management:
-  server:
-    port: ${MANAGEMENT_PORT:8016}
   endpoints:
     web:
-      base-path: /
       exposure:
         include: "info,health"
     enabled-by-default: false

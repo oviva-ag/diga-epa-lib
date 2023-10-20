@@ -18,37 +18,42 @@ package de.gematik.epa.konnektor.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import de.gematik.epa.konnektor.KonnektorInterfaceProvider;
 import de.gematik.epa.unit.util.KonnektorInterfaceAnswer;
+import de.gematik.epa.unit.util.TestBase;
 import de.gematik.epa.unit.util.TestDataFactory;
+import java.util.NoSuchElementException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import telematik.ws.conn.cardservice.xsd.v8_1.Cards;
 import telematik.ws.conn.cardservicecommon.xsd.v2_0.CardTypeType;
 import telematik.ws.conn.eventservice.wsdl.v6_1.FaultMessage;
 import telematik.ws.conn.eventservice.xsd.v6_1.GetCards;
 import telematik.ws.conn.eventservice.xsd.v6_1.GetCardsResponse;
 
-class EventServiceClientTest {
+class EventServiceClientTest extends TestBase {
 
   @BeforeEach
   void beforeEach() {
-    TestDataFactory.initKonnektorTestConfiguration();
+    TestDataFactory.initKonnektorTestConfiguration(konnektorInterfaceAssembly());
   }
 
   @SneakyThrows
   @Test
   void getSmbInfo() {
-    var eventServiceMock =
-        KonnektorInterfaceProvider.defaultInstance().getKonnektorInterfaceAssembly().eventService();
+    var eventServiceMock = konnektorInterfaceAssembly().eventService();
     var answer =
         new KonnektorInterfaceAnswer<GetCards, GetCardsResponse>()
             .setAnswer(TestDataFactory.getCardsSmbResponse());
 
     Mockito.when(eventServiceMock.getCards(Mockito.any())).then(answer);
 
-    var result = assertDoesNotThrow(() -> new EventServiceClient().getSmbInfo());
+    var result =
+        assertDoesNotThrow(
+            () ->
+                new EventServiceClient(konnektorContextProvider(), konnektorInterfaceAssembly())
+                    .getSmbInfo());
 
     assertNotNull(result);
 
@@ -60,14 +65,13 @@ class EventServiceClientTest {
   @SneakyThrows
   @Test
   void getCardsThrowsTest() {
-    var eventServiceMock =
-        KonnektorInterfaceProvider.defaultInstance().getKonnektorInterfaceAssembly().eventService();
+    var eventServiceMock = konnektorInterfaceAssembly().eventService();
 
     var faultMessage = new FaultMessage("Some error occurred", TestDataFactory.getTelematikError());
 
     Mockito.when(eventServiceMock.getCards(Mockito.any())).thenThrow(faultMessage);
 
-    var tstObj = new EventServiceClient();
+    var tstObj = new EventServiceClient(konnektorContextProvider(), konnektorInterfaceAssembly());
     var request = new GetCards();
 
     var exception = assertThrows(FaultMessage.class, () -> tstObj.getCards(request));
@@ -79,8 +83,7 @@ class EventServiceClientTest {
   @SneakyThrows
   @Test
   void getEgkInfoToKvnr() {
-    var eventServiceMock =
-        KonnektorInterfaceProvider.defaultInstance().getKonnektorInterfaceAssembly().eventService();
+    var eventServiceMock = konnektorInterfaceAssembly().eventService();
     var answer =
         new KonnektorInterfaceAnswer<GetCards, GetCardsResponse>()
             .setAnswer(TestDataFactory.getCardsEgkResponse(TestDataFactory.KVNR));
@@ -88,12 +91,41 @@ class EventServiceClientTest {
     Mockito.when(eventServiceMock.getCards(Mockito.any())).then(answer);
 
     var result =
-        assertDoesNotThrow(() -> new EventServiceClient().getEgkInfoToKvnr(TestDataFactory.KVNR));
+        assertDoesNotThrow(
+            () ->
+                new EventServiceClient(konnektorContextProvider(), konnektorInterfaceAssembly())
+                    .getEgkInfoToKvnr(TestDataFactory.KVNR));
 
     assertNotNull(result);
 
     var request = answer.getRequest();
     assertNotNull(request);
     assertEquals(CardTypeType.EGK, request.getCardType());
+  }
+
+  @Test
+  void getCardHandleTest() {
+    var eventServiceMock = konnektorInterfaceAssembly().eventService();
+    var getCardsResponse = TestDataFactory.getCardsSmbResponse();
+    Mockito.when(eventServiceMock.getCards(Mockito.any())).thenReturn(getCardsResponse);
+
+    var tstObj = new EventServiceClient(konnektorContextProvider(), konnektorInterfaceAssembly());
+
+    var cardHandle = assertDoesNotThrow(() -> tstObj.getCardHandle(CardTypeType.SM_B));
+
+    assertNotNull(cardHandle);
+    assertEquals(getCardsResponse.getCards().getCard().get(0).getCardHandle(), cardHandle);
+  }
+
+  @Test
+  void getCardHandleNoCardTest() {
+    var eventServiceMock = konnektorInterfaceAssembly().eventService();
+    var getCardsResponse =
+        new GetCardsResponse().withStatus(TestDataFactory.getStatusOk()).withCards(new Cards());
+    Mockito.when(eventServiceMock.getCards(Mockito.any())).thenReturn(getCardsResponse);
+
+    var tstObj = new EventServiceClient(konnektorContextProvider(), konnektorInterfaceAssembly());
+
+    assertThrows(NoSuchElementException.class, () -> tstObj.getCardHandle(CardTypeType.HB_AX));
   }
 }

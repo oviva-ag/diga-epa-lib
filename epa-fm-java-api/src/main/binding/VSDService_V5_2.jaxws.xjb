@@ -1,0 +1,5 @@
+<jaxws:bindings
+        wsdlLocation="../resources/schemas/conn/vsds/VSDService.wsdl"
+        xmlns:jaxws="https://jakarta.ee/xml/ns/jaxws">
+    <jaxws:package name="telematik.ws.conn.vsds.vsdservice.wsdl.v5_2"/>
+</jaxws:bindings>

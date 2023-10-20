@@ -23,37 +23,31 @@ import static org.mockito.ArgumentMatchers.any;
 import de.gematik.epa.dto.request.FolderCode;
 import de.gematik.epa.dto.request.GetAuthorizationStateRequest;
 import de.gematik.epa.dto.request.PermissionHcpoRequest;
-import de.gematik.epa.konnektor.KonnektorContextProvider;
-import de.gematik.epa.konnektor.SmbInformationProvider;
-import de.gematik.epa.konnektor.client.EventServiceClient;
-import de.gematik.epa.konnektor.client.PhrManagementClient;
+import de.gematik.epa.unit.util.TestBase;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_0.FaultMessage;
+import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_5.FaultMessage;
 
-class PermissionApiImplTest {
+class PermissionApiImplTest extends TestBase {
 
   private PermissionApiImpl tstObj;
 
   @BeforeEach
   void initialize() {
-    tstObj =
-        new PermissionApiImpl(
-            Mockito.mock(KonnektorContextProvider.class),
-            Mockito.mock(EventServiceClient.class),
-            Mockito.mock(SmbInformationProvider.class),
-            Mockito.mock(PhrManagementClient.class));
+    tstObj = new PermissionApiImpl(konnektorContextProvider(), konnektorInterfaceAssembly());
+    setupMocksForSmbInformationProvider(konnektorInterfaceAssembly());
 
-    Mockito.when(tstObj.contextProvider().createContextHeader(any())).thenReturn(contextHeader());
-    Mockito.when(tstObj.eventServiceClient().getEgkInfoToKvnr(any())).thenReturn(cardInfoEgk(KVNR));
-    Mockito.when(tstObj.smbInformationProvider().getOneAuthorInstitution())
-        .thenReturn(authorInstitutionConfiguration(false).authorInstitution());
-    Mockito.when(tstObj.phrMgmtClient().requestFacilityAuthorization(any()))
+    Mockito.when(konnektorInterfaceAssembly().eventService().getCards(any()))
+        .thenReturn(getCardsEgkResponse(KVNR));
+    Mockito.when(
+            konnektorInterfaceAssembly().phrManagementService().requestFacilityAuthorization(any()))
         .thenReturn(requestFacilityAuthorizationResponse());
-    Mockito.when(tstObj.phrMgmtClient().requestGetAuthorizationState(any()))
+    Mockito.when(konnektorInterfaceAssembly().phrManagementService().getAuthorizationState(any()))
         .thenReturn(getAuthorizationStateResponse());
+    Mockito.when(konnektorInterfaceAssembly().phrManagementService().getHomeCommunityID(any()))
+        .thenReturn(getHomeCommunityIDResponse());
   }
 
   @Test
@@ -72,8 +66,10 @@ class PermissionApiImplTest {
   void permissionHcpoFaultTest() {
     var testdata =
         new PermissionHcpoRequest(KVNR, Set.of(FolderCode.OTHER_MEDICAL, FolderCode.CHILDSRECORD));
-    var fault = new FaultMessage("PhrManagementService is on vacation", getTelematikError());
-    Mockito.when(tstObj.phrMgmtClient().requestFacilityAuthorization(any())).thenThrow(fault);
+    var fault = new FaultMessage("I am the expected exception", getTelematikError());
+    Mockito.when(
+            konnektorInterfaceAssembly().phrManagementService().requestFacilityAuthorization(any()))
+        .thenThrow(fault);
 
     var result = assertDoesNotThrow(() -> tstObj.permissionHcpo(testdata));
 
@@ -98,8 +94,9 @@ class PermissionApiImplTest {
   @Test
   void getAuthorizationStateFaultTest() {
     var testdata = new GetAuthorizationStateRequest(KVNR);
-    var fault = new FaultMessage("PhrManagementService is on vacation", getTelematikError());
-    Mockito.when(tstObj.phrMgmtClient().requestGetAuthorizationState(any())).thenThrow(fault);
+    var fault = new FaultMessage("I am the expected exception", getTelematikError());
+    Mockito.when(konnektorInterfaceAssembly().phrManagementService().getAuthorizationState(any()))
+        .thenThrow(fault);
 
     var result = assertDoesNotThrow(() -> tstObj.getAuthorizationState(testdata));
 

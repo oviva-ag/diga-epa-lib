@@ -5,7 +5,7 @@
     <parent>
         <artifactId>epa-ps-sim</artifactId>
         <groupId>de.gematik.epa</groupId>
-        <version>1.1.1</version>
+        <version>1.2.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,8 +14,12 @@
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <swagger.v3.version>2.2.14</swagger.v3.version>
+        <swagger.v3.version>2.2.15</swagger.v3.version>
         <yaml.directory>${project.build.directory}/generated-sources/resources/openapi</yaml.directory>
+        <yaml.zip.path>${project.build.directory}/${project.artifactId}-${project.version}-openapi.zip</yaml.zip.path>
+        <api.config.dir>${project.build.directory}/config</api.config.dir>
+        <api.config.filename>api_configuration.yaml</api.config.filename>
+        <sonar.coverage.exclusions>**/de/gematik/epa/api/**,**/de/gematik/epa/dto/**,**/de/gematik/epa/config/**</sonar.coverage.exclusions>
     </properties>
     <dependencies>
         <dependency>
@@ -27,21 +31,43 @@
             <artifactId>jakarta.ws.rs-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger.v3.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.28</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <targetPath>${api.config.dir}</targetPath>
+                <directory>${project.basedir}</directory>
+                <includes>
+                    <include>${api.config.filename}</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-maven-plugin-jakarta</artifactId>
                 <version>${swagger.v3.version}</version>
                 <configuration>
-                    <outputFileName>testtreiber_ps</outputFileName>
+                    <configurationFilePath>${api.config.dir}/${api.config.filename}</configurationFilePath>
+                    <outputFileName>${project.artifactId}-${project.version}</outputFileName>
                     <outputPath>${yaml.directory}</outputPath>
                     <outputFormat>YAML</outputFormat>
                     <resourcePackages>
@@ -55,6 +81,26 @@
                         <goals>
                             <goal>resolve</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>create-archive</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <zip destfile="${yaml.zip.path}" basedir="${yaml.directory}"/>
+                                <attachartifact file="${yaml.zip.path}" classifier="yaml" type="zip"/>
+                            </target>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -2,6 +2,26 @@
 
 # Release notes ePA-PS-Sim
 
+## Release 1.2.1
+
+### fixed
+- Missing copyright header
+
+## Release 1.2.0
+
+### added
+- Additional operation configureKonnektor
+  - Change the configuration relevant for the communication with a Konnektor at runtime
+- Additional operation readVSD
+- Feature unlock SMC-B:
+  - Automatically triggered SMC-B unlock during the start of the simulation
+- Add folder code DIGA
+
+### changed
+- Moved the Apache CXF generation of the client-side 
+  Konnektor Webservices implementation from the epa-ps-sim-app module to the epa-ps-sim-lib module
+- Updated PHRManagementService on 2.5 Version
+
 ## Release 1.1.1
 
 ### fixed

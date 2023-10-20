@@ -17,15 +17,13 @@
 package de.gematik.epa.konnektor.client;
 
 import de.gematik.epa.konnektor.KonnektorContextProvider;
-import de.gematik.epa.konnektor.KonnektorInterfaceProvider;
+import de.gematik.epa.konnektor.KonnektorInterfaceAssembly;
 import de.gematik.epa.utils.CertificateUtils;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
@@ -38,22 +36,24 @@ import telematik.ws.conn.certificateservicecommon.xsd.v2_0.CertRefEnum;
 import telematik.ws.conn.certificateservicecommon.xsd.v2_0.X509DataInfoListType;
 import telematik.ws.conn.certificateservicecommon.xsd.v2_0.X509DataInfoListType.X509DataInfo;
 import telematik.ws.conn.certificateservicecommon.xsd.v2_0.X509DataInfoListType.X509DataInfo.X509Data;
+import telematik.ws.conn.connectorcontext.xsd.v2_0.ContextType;
 
 @Accessors(fluent = true)
-public class CertificateServiceClient {
+public class CertificateServiceClient extends KonnektorServiceClient {
 
-  @Getter(lazy = true, value = AccessLevel.MODULE)
-  private final CertificateServicePortType certificateService =
-      KonnektorInterfaceProvider.defaultInstance()
-          .getKonnektorInterfaceAssembly()
-          .certificateService();
+  private CertificateServicePortType certificateService;
 
-  @Getter(lazy = true, value = AccessLevel.MODULE)
-  private final KonnektorContextProvider contextProvider =
-      KonnektorContextProvider.defaultInstance();
+  private ContextType context;
+
+  public CertificateServiceClient(
+      KonnektorContextProvider konnektorContextProvider,
+      KonnektorInterfaceAssembly konnektorInterfaceAssembly) {
+    super(konnektorContextProvider, konnektorInterfaceAssembly);
+    runInitializationSynchronized();
+  }
 
   public ReadCardCertificateResponse readCardCertificate(@NonNull ReadCardCertificate request) {
-    return certificateService().readCardCertificate(request);
+    return certificateService.readCardCertificate(request);
   }
 
   @SneakyThrows
@@ -84,6 +84,12 @@ public class CertificateServiceClient {
     return CertificateUtils.getTelematikIdFromCertificate(cert);
   }
 
+  @Override
+  protected void initialize() {
+    context = konnektorContextProvider.getContext();
+    certificateService = konnektorInterfaceAssembly.certificateService();
+  }
+
   private ReadCardCertificate buildReadCardCertificateRequest(
       CardInfoType cardInfo, CertRefEnum certRef) {
     final var certRefList = new ObjectFactory().createReadCardCertificateCertRefList();
@@ -91,7 +97,7 @@ public class CertificateServiceClient {
     final var readCardCertificateRequest = new ObjectFactory().createReadCardCertificate();
     readCardCertificateRequest.setCardHandle(cardInfo.getCardHandle());
     readCardCertificateRequest.setCertRefList(certRefList);
-    readCardCertificateRequest.setContext(contextProvider().getContext());
+    readCardCertificateRequest.setContext(context);
     return readCardCertificateRequest;
   }
 }

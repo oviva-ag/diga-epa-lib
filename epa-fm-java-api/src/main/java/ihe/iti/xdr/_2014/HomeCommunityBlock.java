@@ -21,7 +21,11 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlType;
 
-/** Schema is not yet in schema.zip */
+/**
+ * HomeCommunityBlock XML type to be added to the SOAP headers of the provideAndRegister operation.
+ * <br>
+ * The actual schema is not yet available, so the class had to be implemented manually.
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "homeCommunityBlock", namespace = "urn:ihe:iti:xdr:2014")
 public class HomeCommunityBlock {

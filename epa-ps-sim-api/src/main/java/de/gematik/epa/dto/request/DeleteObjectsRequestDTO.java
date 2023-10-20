@@ -16,6 +16,15 @@
 
 package de.gematik.epa.dto.request;
 
+import static de.gematik.epa.constants.Documentation.KVNR_DESCRIPTION;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
-public record DeleteObjectsRequestDTO(String kvnr, List<String> entryUUIDs) {}
+@Schema(description = "Request um Objekte aus einem Aktenkonto zu löschen")
+public record DeleteObjectsRequestDTO(
+    @JsonProperty(required = true) @Schema(description = KVNR_DESCRIPTION) String kvnr,
+    @JsonProperty(required = true)
+        @Schema(description = "Liste der entryUUIDs der Objekte, die gelöscht werden sollen")
+        List<String> entryUUIDs) {}

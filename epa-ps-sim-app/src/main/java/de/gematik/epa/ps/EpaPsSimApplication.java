@@ -16,7 +16,7 @@
 
 package de.gematik.epa.ps;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -24,12 +24,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 
 /** Main class of the epa-ps-sim-app. Starts the Spring Boot context. */
 @SpringBootApplication
-@ConfigurationPropertiesScan
 public class EpaPsSimApplication {
 
   public static void main(final String[] args) {
@@ -45,7 +43,7 @@ public class EpaPsSimApplication {
   @Bean
   public JacksonJsonProvider jsonProvider() {
     final ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    objectMapper.setSerializationInclusion(Include.NON_ABSENT);
     objectMapper.registerModule(new JavaTimeModule());
 
     final JacksonJsonProvider provider = new JacksonJsonProvider();

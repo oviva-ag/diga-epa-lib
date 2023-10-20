@@ -16,13 +16,17 @@
 
 package de.gematik.epa.unit.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.gematik.epa.dto.request.FindRequestDTO;
 import de.gematik.epa.dto.request.PutDocumentsRequestDTO;
+import de.gematik.epa.dto.request.ReadVSDRequest;
 import de.gematik.epa.dto.request.ReplaceDocumentsRequestDTO;
 import de.gematik.epa.dto.request.RetrieveDocumentsRequestDTO;
+import de.gematik.epa.dto.request.SignDocumentRequest;
+import de.gematik.epa.utils.XmlUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -33,6 +37,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.io.FileUtils;
+import telematik.ws.conn.servicedirectory.xsd.v3_1.ConnectorServices;
 
 @UtilityClass
 @Accessors(fluent = true)
@@ -41,6 +46,7 @@ public class ResourceLoader {
   private final String TEST_RESOURCES_PATH = "src/test/resources/";
 
   public static final String REQUEST_PATH = TEST_RESOURCES_PATH + "requests/";
+  public static final String RESPONSE_PATH = TEST_RESOURCES_PATH + "response/";
   public static final String PUT_DOCUMENTS_WITH_FOLDER_METADATA_REQUEST =
       REQUEST_PATH + "putDocumentsWithFolderMetadata.json";
   public static final String RETRIEVE_DOCUMENTS_REQUEST =
@@ -50,11 +56,17 @@ public class ResourceLoader {
   public static final String AUT_CERTIFICATE =
       PKI_PATH + "80276883110000117894-C_SMCB_HCI_AUT_E256.crt";
   public static final String OTHER_CERTIFICATE = PKI_PATH + "wiki-gematik-de.crt";
+  public static final String TEST_P12 = PKI_PATH + "test.p12";
 
   public static final String FIND_BY_PATIENT_ID_REQUEST =
       REQUEST_PATH + "findByPatientIdRequest.json";
 
   public static final String REPLACE_DOCUMENTS_REQUEST = REQUEST_PATH + "replaceDocuments.json";
+
+  public static final String SIGN_DOCUMENT_REQUEST = REQUEST_PATH + "signDocumentRequest.json";
+  public static final String READ_VSD_REQUEST = REQUEST_PATH + "readVSDRequest.json";
+
+  public static final String CONNECTOR_SDS_PATH = RESPONSE_PATH + "connector.sds";
 
   private static ObjectMapper MAPPER;
 
@@ -70,6 +82,22 @@ public class ResourceLoader {
   private static final ReplaceDocumentsRequestDTO replaceDocumentsRequest =
       loadDtoFromJsonFile(ReplaceDocumentsRequestDTO.class, REPLACE_DOCUMENTS_REQUEST);
 
+  @Getter(lazy = true)
+  private static final FindRequestDTO findByPatientIdRequest =
+      loadDtoFromJsonFile(FindRequestDTO.class, FIND_BY_PATIENT_ID_REQUEST);
+
+  @Getter(lazy = true)
+  private static final SignDocumentRequest signDocumentRequest =
+      loadDtoFromJsonFile(SignDocumentRequest.class, SIGN_DOCUMENT_REQUEST);
+
+  @Getter(lazy = true)
+  private static final ReadVSDRequest readVSDRequest =
+      loadDtoFromJsonFile(ReadVSDRequest.class, READ_VSD_REQUEST);
+
+  @Getter(lazy = true)
+  private static final ConnectorServices connectorServices =
+      XmlUtils.unmarshal(ConnectorServices.class, readBytesFromResource(CONNECTOR_SDS_PATH));
+
   public static ObjectMapper getObjectMapper() {
     return Optional.ofNullable(MAPPER)
         .orElseGet(
@@ -77,12 +105,13 @@ public class ResourceLoader {
               MAPPER =
                   new ObjectMapper()
                       .registerModule(new JavaTimeModule())
+                      .setSerializationInclusion(Include.NON_ABSENT)
                       .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
               return MAPPER;
             });
   }
 
-  public static byte[] autCertificateAsByteArray() throws IOException {
+  public static byte[] autCertificateAsByteArray() {
     return readBytesFromResource(AUT_CERTIFICATE);
   }
 
@@ -97,14 +126,15 @@ public class ResourceLoader {
     return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
   }
 
-  public static byte[] readBytesFromResource(final String filePath) throws IOException {
+  @SneakyThrows
+  public static byte[] readBytesFromResource(final String filePath) {
     var file = toFile(filePath);
     return FileUtils.readFileToByteArray(file);
   }
 
-  public static FindRequestDTO findByPatientIdRequest() {
+  /*  public static FindRequestDTO findByPatientIdRequest() {
     return loadDtoFromJsonFile(FindRequestDTO.class, FIND_BY_PATIENT_ID_REQUEST);
-  }
+  }*/
 
   private static File toFile(@NonNull String filePath) {
     return FileUtils.getFile(filePath);

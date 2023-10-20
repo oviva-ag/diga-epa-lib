@@ -16,8 +16,21 @@
 
 package de.gematik.epa.dto.response;
 
+import static de.gematik.epa.constants.Documentation.STATUS_MSG_DESCRIPTION;
+import static de.gematik.epa.constants.Documentation.SUCCESS_DESCRIPTION;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.gematik.epa.ihe.model.response.RetrieveDocumentElement;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
+@Schema(
+    description =
+        "Response, der die abgerufenen Dokumente enthält, oder Fehlerinformationen, für den Fall, dass ein Fehler aufgetreten ist")
 public record RetrieveDocumentsResponseDTO(
-    Boolean success, String statusMessage, List<RetrieveDocumentElement> documents) {}
+    @JsonProperty(required = true) @Schema(description = SUCCESS_DESCRIPTION) Boolean success,
+    @Schema(description = STATUS_MSG_DESCRIPTION) String statusMessage,
+    @Schema(
+            description =
+                "Liste der abgerufenen Dokumente. Zu jedem Dokument (Base64 kodiert) sind auch uniqueId und mimeType enthalten. Leer, wenn keine Dokumente abgerufen werden konnten.")
+        List<RetrieveDocumentElement> documents) {}
