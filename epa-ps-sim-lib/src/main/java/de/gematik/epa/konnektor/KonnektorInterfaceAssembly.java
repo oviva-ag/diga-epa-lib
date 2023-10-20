@@ -19,9 +19,10 @@ package de.gematik.epa.konnektor;
 import telematik.ws.conn.cardservice.wsdl.v8_1.CardServicePortType;
 import telematik.ws.conn.certificateservice.wsdl.v6_0.CertificateServicePortType;
 import telematik.ws.conn.eventservice.wsdl.v6_1.EventServicePortType;
-import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_0.PHRManagementServicePortType;
+import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_5.PHRManagementServicePortType;
 import telematik.ws.conn.phrs.phrservice.wsdl.v2_0.PHRServicePortType;
 import telematik.ws.conn.signatureservice.wsdl.v7_5.SignatureServicePortType;
+import telematik.ws.conn.vsds.vsdservice.wsdl.v5_2.VSDServicePortType;
 
 /** Interface to provide the client implementations of the contained Konnektor Webservices. */
 public interface KonnektorInterfaceAssembly {
@@ -37,4 +38,6 @@ public interface KonnektorInterfaceAssembly {
   CertificateServicePortType certificateService();
 
   SignatureServicePortType signatureService();
+
+  VSDServicePortType vsdService();
 }

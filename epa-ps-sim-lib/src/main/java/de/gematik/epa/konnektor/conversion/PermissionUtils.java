@@ -28,13 +28,13 @@ import java.util.Optional;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import telematik.ws.conn.cardservice.xsd.v8_1.CardInfoType;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.AuthorizationConfidentialityEnum;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.AuthorizationConfiguration;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.AuthorizationConfiguration.DocumentCategoryList;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.DocumentCategoryEnum;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.GetAuthorizationState;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.RequestFacilityAuthorization;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.RequestFacilityAuthorization.InsurantName;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.AuthorizationConfidentialityEnum;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.AuthorizationConfiguration;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.AuthorizationConfiguration.DocumentCategoryList;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.DocumentCategoryEnum;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetAuthorizationState;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.RequestFacilityAuthorization;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.RequestFacilityAuthorization.InsurantName;
 import telematik.ws.conn.phrs.phrservice.xsd.v2_0.ContextHeader;
 
 @UtilityClass

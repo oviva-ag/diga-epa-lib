@@ -16,33 +16,62 @@
 
 package de.gematik.epa.unit.util;
 
+import static org.apache.cxf.message.Message.REQUESTOR_ROLE;
+
+import de.gematik.epa.config.AddressConfig;
+import de.gematik.epa.config.BasicAuthenticationConfig;
+import de.gematik.epa.config.Context;
 import de.gematik.epa.config.DefaultdataInterface;
-import de.gematik.epa.config.DefaultdataProvider;
+import de.gematik.epa.config.FileInfo;
+import de.gematik.epa.config.ProxyAddressConfig;
+import de.gematik.epa.config.TlsConfig;
 import de.gematik.epa.context.ContextHeaderAdapter;
 import de.gematik.epa.data.AuthorInstitutionConfiguration;
 import de.gematik.epa.data.AuthorPerson;
-import de.gematik.epa.data.Context;
 import de.gematik.epa.data.SubmissionSetAuthorConfiguration;
+import de.gematik.epa.dto.request.SignDocumentRequest.SignatureType;
 import de.gematik.epa.ihe.model.simple.AuthorInstitution;
 import de.gematik.epa.konnektor.KonnektorContextProvider;
 import de.gematik.epa.konnektor.KonnektorInterfaceAssembly;
-import de.gematik.epa.konnektor.KonnektorInterfaceProvider;
 import de.gematik.epa.konnektor.KonnektorUtils;
+import de.gematik.epa.konnektor.config.KonnektorConfigurationMutable;
+import de.gematik.epa.konnektor.config.KonnektorConnectionConfigurationMutable;
+import de.gematik.epa.konnektor.cxf.KonnektorInterfacesCxfImpl;
+import de.gematik.epa.konnektor.cxf.interceptors.HomeCommunityBlockOutInterceptor;
 import ihe.iti.xds_b._2007.RetrieveDocumentSetResponseType;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.GregorianCalendar;
+import java.util.List;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.namespace.QName;
+import lombok.Data;
 import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
 import lombok.experimental.UtilityClass;
+import oasis.names.tc.dss._1_0.core.schema.Base64Data;
+import oasis.names.tc.dss._1_0.core.schema.Base64Signature;
+import oasis.names.tc.dss._1_0.core.schema.SignatureObject;
 import oasis.names.tc.ebxml_regrep.xsd.query._3.AdhocQueryResponse;
 import oasis.names.tc.ebxml_regrep.xsd.rs._3.RegistryResponseType;
+import org.apache.cxf.binding.soap.Soap12;
+import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.MessageInfo.Type;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.mockito.Mockito;
 import telematik.ws.conn.cardservice.wsdl.v8_1.CardServicePortType;
 import telematik.ws.conn.cardservice.xsd.v8_1.CardInfoType;
 import telematik.ws.conn.cardservice.xsd.v8_1.CardInfoType.CardVersion;
 import telematik.ws.conn.cardservice.xsd.v8_1.Cards;
+import telematik.ws.conn.cardservice.xsd.v8_1.GetPinStatusResponse;
+import telematik.ws.conn.cardservice.xsd.v8_1.PinStatusEnum;
 import telematik.ws.conn.cardservicecommon.xsd.v2_0.CardTypeType;
+import telematik.ws.conn.cardservicecommon.xsd.v2_0.PinResponseType;
+import telematik.ws.conn.cardservicecommon.xsd.v2_0.PinResultEnum;
 import telematik.ws.conn.certificateservice.wsdl.v6_0.CertificateServicePortType;
 import telematik.ws.conn.certificateservice.xsd.v6_0.ReadCardCertificateResponse;
 import telematik.ws.conn.certificateservicecommon.xsd.v2_0.CertRefEnum;
@@ -52,14 +81,21 @@ import telematik.ws.conn.connectorcommon.xsd.v5_0.Status;
 import telematik.ws.conn.connectorcontext.xsd.v2_0.ContextType;
 import telematik.ws.conn.eventservice.wsdl.v6_1.EventServicePortType;
 import telematik.ws.conn.eventservice.xsd.v6_1.GetCardsResponse;
-import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_0.PHRManagementServicePortType;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.AuthorizedApplicationType;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.GetAuthorizationStateResponse;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.GetHomeCommunityID;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.GetHomeCommunityIDResponse;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.RequestFacilityAuthorizationResponse;
+import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_5.PHRManagementServicePortType;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.AuthorizedApplicationType;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetAuthorizationStateResponse;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetHomeCommunityID;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetHomeCommunityIDResponse;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.RequestFacilityAuthorizationResponse;
 import telematik.ws.conn.phrs.phrservice.wsdl.v2_0.PHRServicePortType;
 import telematik.ws.conn.signatureservice.wsdl.v7_5.SignatureServicePortType;
+import telematik.ws.conn.signatureservice.xsd.v7_5.DocumentType;
+import telematik.ws.conn.signatureservice.xsd.v7_5.SignDocumentResponse;
+import telematik.ws.conn.signatureservice.xsd.v7_5.SignResponse;
+import telematik.ws.conn.signatureservice.xsd.v7_5.SignResponse.OptionalOutputs;
+import telematik.ws.conn.vsds.vsdservice.wsdl.v5_2.VSDServicePortType;
+import telematik.ws.conn.vsds.vsdservice.xsd.v5_2.ReadVSDResponse;
+import telematik.ws.conn.vsds.vsdservice.xsd.v5_2.VSDStatusType;
 import telematik.ws.fd.phr.phrcommon.xsd.v1_1.InsurantIdType;
 import telematik.ws.fd.phr.phrcommon.xsd.v1_1.RecordIdentifierType;
 import telematik.ws.tel.error.telematikerror.xsd.v2_0.Error;
@@ -76,9 +112,53 @@ public class TestDataFactory {
   public static final String ROOT = KonnektorContextProvider.defaultRootId();
   public static final String HOME_COMMUNITY_ID = "1.2.3.4.5.67";
   public static final String STATUS_RESULT_OK = KonnektorUtils.STATUS_OK;
+  public static final String STATUS_RESULT_WARNING = KonnektorUtils.STATUS_WARNING;
   public static final String REGISTRY_RESPONSE_STATUS_SUCCESS =
       "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Success";
   public static final String SMB_AUT_TELEMATIK_ID = "5-SMC-B-Testkarte-883110000117894";
+
+  public static KonnektorConfigurationMutable createKonnektorConfiguration() {
+    return new KonnektorConfigurationMutableForTest()
+        .connection(createKonnektorConnectionConfiguration())
+        .context(createKonnektorContext());
+  }
+
+  public static Context createKonnektorContext() {
+    return new Context(MANDANT_ID, CLIENTSYSTEM_ID, WORKPLACE_ID, USER_ID);
+  }
+
+  public static KonnektorConnectionConfigurationMutable createKonnektorConnectionConfiguration() {
+    return new KonnektorConnectionConfigurationMutableForTest()
+        .address(createAddress())
+        .tlsConfig(createTlsConfig())
+        .proxyAddress(createProxyAddressConfig())
+        .basicAuthentication(createBasicAuthenticationData());
+  }
+
+  public static AddressConfig createAddress() {
+    return new AddressConfig(
+        "localhost",
+        Integer.parseInt(AddressConfig.DEFAULT_PORT),
+        KonnektorInterfacesCxfImpl.HTTPS_PROTOCOL,
+        "services");
+  }
+
+  public static TlsConfig createTlsConfig() {
+    return new TlsConfig(
+        new FileInfo(ResourceLoader.TEST_P12),
+        "test1234",
+        "PKCS12",
+        List.of("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA"));
+  }
+
+  public static ProxyAddressConfig createProxyAddressConfig() {
+    return new ProxyAddressConfig(
+        "localhost", Integer.parseInt(ProxyAddressConfig.DEFAULT_PORT), true);
+  }
+
+  public static BasicAuthenticationConfig createBasicAuthenticationData() {
+    return new BasicAuthenticationConfig("root", "root", true);
+  }
 
   public static ContextHeaderAdapter contextHeader() {
     var contextHeader = new ContextHeaderAdapter();
@@ -117,6 +197,13 @@ public class TestDataFactory {
   public static Status getStatusOk() {
     var status = new Status();
     status.setResult(STATUS_RESULT_OK);
+
+    return status;
+  }
+
+  public static Status getStatusWarning() {
+    var status = new Status();
+    status.setResult(STATUS_RESULT_WARNING);
 
     return status;
   }
@@ -208,6 +295,28 @@ public class TestDataFactory {
     return result;
   }
 
+  public static ReadVSDResponse readVSDResponse() {
+    final String allgemeineVersicherungsdaten =
+        "H4sIAAAAAAAAAM1S30/CMBD+V5a9s+tmZpgpJQjGEASM6DS+LHU7toXtZtaChr/ejhCzEYKvvrS57+77kV758LssrB3WKq9oYLsOsy2kuEpySgf2dLXs9ft+0HN9eyj4yzgaFUWKJeaEYcOJM6y3lKpEaqS3+YNl1EgN7EzrzxuAL+WYaanzjZMgrCXsVFI2B+x8x7Ot8WQehXdPq+lyMbANYtwF/xXWWLeqxkbF2VbvBb/FNCcSHvMYc70rDkeAzyplguhaYtqQO+UGiYyIcFngMxZcBxzO9rusQiIlWJsXQTE5YbR7fCFLFM+otHU/C3urkMMB4aOPGuOMDpP/MB5cyAen9dllvG+V1Puc1pXqFMans0yStRZ+S+QItTnRMY3Rjw781+WjYC6H5uZwaRJOraETDLrfCv7+y+IHk1/iLhwDAAA=";
+    final String geschuetzteVersichertendaten =
+        "H4sIAAAAAAAAAIVP22rCQBD9lbDvZmIhoDJZKSoS8AINFfFFlmTMBpONZCdpydd3QwsqLfTlzMyZy5mD88+q9DpqbFGbSIz9QHhk0jorTB6JONmPJpNwOhqHYi7xfXFek011S9wzHYalVFPDZDLl4LjdeO6asZHQzLcZwIf1c6oUF1c/I7go6GxWDQBd6L8Ib7Hcng+rtyTe7yLhGKcu8dT2Spetya1lxa2VmHzHAOEnQ/hjiEq6ctE5L9woykniKzU9l+5HOUW4F3hS2qjH3jPhZH7fgv/Nyy+lvE/gTQEAAA==";
+    final String persoenlicheVersichertendaten =
+        "H4sIAAAAAAAAAI1SwW7aQBD9lZXvYTEFEarxRkmIUqQAUaxCbmhjD7bT9Wy1u4aW322/IeeMU0Kh7aGXtd/MvHkzegMX32ojNuh8ZSmJ4k43EkiZzSsqkmiSzs/Ozwejs3gQCR805dpYwiT6jj66UPD5enXPVItkqqzERduGvy4gV/LzOL0T1+PpanHzkE7msyQadHqtAmuST6IyhK8fpdz6ToG1DtWXTo5yreXG53X7yA3XRwqO+roTRKvJWD3Gcbc/7I+GXZB/5uBtPFJwi0+NC56namoVjwZx3OsOQZ6EYWEd6RpVutUUnlFMf7hKE6GYVZk1jHWLxT0Gp1lrXw0znZVvf0v0Hk2w6wDyEGRpn5UGszKoZat4QEyskfyu8Trs1K37ua6oJR4FIWUpbkqXuWub80LWB4NV2OnSqN6HYb8P8iQGcxdUmpUvtNUmR6FrcdVQ4Z/QFSDbJNyxkQqWtiTPJKPZLXTsOaoxyH+FQf6i7KdRD03ptQH5juGTbjw1dc3+9EAeIbgk3tdVazZkv9MNn5amQvDgfycPPX9vLN89lKd3IP/j+tQr5eQJHuACAAA=";
+    final String pruefungsnachweis =
+        "H4sIAAAAAAAACh2NQQ+CIBhA/wrjrh/gatoAD+XBQ+qydW1MyFyKLpjWv0+7vu29x9PP0KPZvF03WoFpSDAythl1Z1uB87oM4niXBBQj55XVqh+tEfhrHE4lrwp0PJ3vt+xS52Xxtzd/LVon8NP76QCwuLA1g/LdK9QGHgpmpweY7ALzdpP8WktGWEQSRsk+YizisCKeScohkxyqQv4AzmAvGKYAAAA=";
+
+    var readVSDResponse = new ReadVSDResponse();
+    readVSDResponse.setVSDStatus(new VSDStatusType().withStatus("1"));
+    readVSDResponse.setAllgemeineVersicherungsdaten(
+        allgemeineVersicherungsdaten.getBytes(StandardCharsets.UTF_8));
+    readVSDResponse.setGeschuetzteVersichertendaten(
+        geschuetzteVersichertendaten.getBytes(StandardCharsets.UTF_8));
+    readVSDResponse.setPersoenlicheVersichertendaten(
+        persoenlicheVersichertendaten.getBytes(StandardCharsets.UTF_8));
+    readVSDResponse.setPruefungsnachweis(Base64.getDecoder().decode(pruefungsnachweis.getBytes()));
+    return readVSDResponse;
+  }
+
   public static GetCardsResponse getCardsSmbResponse() {
     var getCardsResponse = new GetCardsResponse();
 
@@ -226,6 +335,22 @@ public class TestDataFactory {
     getCardsResponse.getCards().getCard().add(cardInfoEgk(kvnr));
 
     return getCardsResponse;
+  }
+
+  public static GetPinStatusResponse getPinStatusResponse(PinStatusEnum pinStatus) {
+    BigInteger leftTries = new BigInteger("3");
+    return new GetPinStatusResponse()
+        .withStatus(getStatusOk())
+        .withPinStatus(pinStatus)
+        .withLeftTries(leftTries);
+  }
+
+  public static PinResponseType verifyPin(Status status, PinResultEnum pinResult) {
+    BigInteger leftTries = new BigInteger("3");
+    return new PinResponseType()
+        .withStatus(status)
+        .withPinResult(pinResult)
+        .withLeftTries(leftTries);
   }
 
   public static ReadCardCertificateResponse readCardCertificateResponse() throws IOException {
@@ -282,6 +407,38 @@ public class TestDataFactory {
     return authorizationStateResponse;
   }
 
+  public static SignDocumentResponse getSignDocumentResponse() {
+    return new SignDocumentResponse()
+        .withSignResponse(
+            new SignResponse()
+                .withRequestID("reth456")
+                .withStatus(getStatusOk())
+                .withSignatureObject(
+                    new SignatureObject()
+                        .withBase64Signature(
+                            new Base64Signature()
+                                .withType(SignatureType.CMS.uri().toString())
+                                .withValue("I am a Signature".getBytes(StandardCharsets.UTF_8))))
+                .withOptionalOutputs(
+                    new OptionalOutputs()
+                        .withDocumentWithSignature(
+                            new DocumentType().withBase64Data(new Base64Data()))));
+  }
+
+  public static SoapMessage createCxfSoapMessage() {
+    var soapMessage = new SoapMessage(Soap12.getInstance());
+    var interfaceInfo =
+        new InterfaceInfo(
+            new ServiceInfo(), new QName(HomeCommunityBlockOutInterceptor.PHR_SERVICE_PORT_NAME));
+    var operationInfo =
+        interfaceInfo.addOperation(
+            new QName(HomeCommunityBlockOutInterceptor.PROV_AND_REG_OPERATION_NAME));
+    var msgInfo = new MessageInfo(operationInfo, Type.OUTPUT, operationInfo.getName());
+    soapMessage.put(MessageInfo.class, msgInfo);
+    soapMessage.put(REQUESTOR_ROLE, Boolean.TRUE);
+    return soapMessage;
+  }
+
   public static AuthorInstitutionConfiguration authorInstitutionConfiguration(
       boolean retrieveFromSmb) {
     return new AuthorInstitutionConfiguration(
@@ -319,38 +476,45 @@ public class TestDataFactory {
         .eventService(Mockito.mock(EventServicePortType.class))
         .cardService(Mockito.mock(CardServicePortType.class))
         .certificateService(Mockito.mock(CertificateServicePortType.class))
-        .signatureService(Mockito.mock(SignatureServicePortType.class));
+        .signatureService(Mockito.mock(SignatureServicePortType.class))
+        .vsdService(Mockito.mock(VSDServicePortType.class));
   }
 
   @SneakyThrows
-  public static void initKonnektorTestConfiguration() {
-    KonnektorContextProvider.defaultInstance()
-        .konnektorContext(new Context(MANDANT_ID, CLIENTSYSTEM_ID, WORKPLACE_ID, USER_ID));
-
-    var konnektorInterfaceAssemblyMock = konnektorInterfaceAssemblyMock();
-    KonnektorInterfaceProvider.defaultInstance()
-        .setKonnektorInterfaceAssembly(konnektorInterfaceAssemblyMock);
-
-    DefaultdataProvider.defaultInstance().defaultdata(defaultdata(true, false));
-
-    var phrManagementServiceMock = konnektorInterfaceAssemblyMock.phrManagementService();
+  public static void initKonnektorTestConfiguration(
+      KonnektorInterfaceAssembly konnektorInterfaceAssembly) {
+    var phrManagementServiceMock = konnektorInterfaceAssembly.phrManagementService();
     Mockito.when(phrManagementServiceMock.getHomeCommunityID(Mockito.any(GetHomeCommunityID.class)))
         .thenReturn(TestDataFactory.getHomeCommunityIDResponse());
   }
 
   @SneakyThrows
-  public static void setupMocksForSmbInformationProvider() {
-    var eventServiceMock =
-        KonnektorInterfaceProvider.defaultInstance().getKonnektorInterfaceAssembly().eventService();
-    var certificateServiceMock =
-        KonnektorInterfaceProvider.defaultInstance()
-            .getKonnektorInterfaceAssembly()
-            .certificateService();
+  public static void setupMocksForSmbInformationProvider(
+      KonnektorInterfaceAssembly konnektorInterfaceAssembly) {
+    var eventServiceMock = konnektorInterfaceAssembly.eventService();
+    var certificateServiceMock = konnektorInterfaceAssembly.certificateService();
     var getCardsSmbResponse = getCardsSmbResponse();
 
     Mockito.when(eventServiceMock.getCards(Mockito.any())).thenReturn(getCardsSmbResponse);
 
     Mockito.when(certificateServiceMock.readCardCertificate(Mockito.any()))
         .thenReturn(readCardCertificateResponse());
+  }
+
+  @Data
+  @Accessors(fluent = true)
+  static class KonnektorConnectionConfigurationMutableForTest
+      implements KonnektorConnectionConfigurationMutable {
+    private AddressConfig address;
+    private BasicAuthenticationConfig basicAuthentication;
+    private ProxyAddressConfig proxyAddress;
+    private TlsConfig tlsConfig;
+  }
+
+  @Data
+  @Accessors(fluent = true)
+  static class KonnektorConfigurationMutableForTest implements KonnektorConfigurationMutable {
+    private KonnektorConnectionConfigurationMutable connection;
+    private Context context;
   }
 }

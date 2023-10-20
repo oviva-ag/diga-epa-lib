@@ -16,6 +16,8 @@
 
 package de.gematik.epa.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 
+@Schema(description = "Für den Zugriff auf das Aktenkonto authorisierte Anwendung")
 public record AuthorizedApplication(String applicationName, LocalDate validTo) {}

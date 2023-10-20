@@ -16,8 +16,16 @@
 
 package de.gematik.epa.unit.util;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import de.gematik.epa.config.BasicAuthenticationConfig;
+import de.gematik.epa.config.ProxyAddressConfig;
+import de.gematik.epa.config.TlsConfig;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.opentest4j.AssertionFailedError;
 import telematik.ws.conn.connectorcontext.xsd.v2_0.ContextType;
 import telematik.ws.conn.phrs.phrservice.xsd.v2_0.ContextHeader;
@@ -72,5 +80,38 @@ public class Assertions {
             && actual.getRoot().equals(expected.getRoot()))) return;
 
     throw new AssertionFailedError("InsurantIds are not the same", expected, actual);
+  }
+
+  public static void assertTlsConfig(
+      @NonNull TlsConfig expectedValues, TLSClientParameters actualValues) {
+    assertNotNull(actualValues);
+
+    assertTrue(actualValues.getKeyManagers().length > 0);
+    assertTrue(actualValues.getTrustManagers().length > 0);
+    assertNotNull(actualValues.getCipherSuites());
+    assertArrayEquals(
+        expectedValues.ciphersuites().toArray(new String[0]),
+        actualValues.getCipherSuites().toArray(new String[0]));
+  }
+
+  public static void assertAuthorization(
+      @NonNull BasicAuthenticationConfig expectedValues, AuthorizationPolicy actualValues) {
+    assertNotNull(actualValues);
+
+    assertTrue(actualValues.isSetAuthorizationType());
+    org.junit.jupiter.api.Assertions.assertEquals(
+        expectedValues.username(), actualValues.getUserName());
+    org.junit.jupiter.api.Assertions.assertEquals(
+        expectedValues.password(), actualValues.getPassword());
+  }
+
+  public static void assertProxy(
+      @NonNull ProxyAddressConfig expectedValues, HTTPClientPolicy actualValues) {
+    assertNotNull(actualValues);
+
+    org.junit.jupiter.api.Assertions.assertEquals(
+        expectedValues.address(), actualValues.getProxyServer());
+    org.junit.jupiter.api.Assertions.assertEquals(
+        expectedValues.port(), actualValues.getProxyServerPort());
   }
 }

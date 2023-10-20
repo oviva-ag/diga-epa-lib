@@ -31,7 +31,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import telematik.ws.conn.connectorcommon.xsd.v5_0.Status;
 import telematik.ws.conn.eventservice.wsdl.v6_1.FaultMessage;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.GetAuthorizationStateResponse;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetAuthorizationStateResponse;
 
 class KonnektorUtilsTest {
 

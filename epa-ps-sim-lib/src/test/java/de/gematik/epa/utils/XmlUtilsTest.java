@@ -20,9 +20,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import de.gematik.epa.unit.util.TestDataFactory;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Optional;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.junit.jupiter.api.Test;
 import telematik.ws.conn.cardservice.xsd.v8_1.GetPinStatus;
 import telematik.ws.conn.connectorcontext.xsd.v2_0.ContextType;
+import telematik.ws.conn.plus.ObjectFactory;
 
 class XmlUtilsTest {
 
@@ -99,5 +104,42 @@ class XmlUtilsTest {
     var result = assertDoesNotThrow(() -> XmlUtils.fromLocalDate(null));
 
     assertNull(result);
+  }
+
+  @Test
+  void registerObjectFactoryTest() {
+    var factoryBean = new JaxWsProxyFactoryBean();
+
+    assertDoesNotThrow(() -> XmlUtils.registerObjectFactory(factoryBean, ObjectFactory.class));
+
+    assertNotNull(factoryBean.getProperties(), "No properties in factory bean");
+    assertTrue(
+        factoryBean
+            .getProperties()
+            .containsKey(XmlUtils.JAXB_ADDITIONAL_CONTEXT_CLASSES_PROPERTY_KEY),
+        "Property missing in factory bean");
+    assertTrue(
+        Optional.ofNullable(
+                factoryBean
+                    .getProperties()
+                    .get(XmlUtils.JAXB_ADDITIONAL_CONTEXT_CLASSES_PROPERTY_KEY))
+            .filter(value -> value instanceof Class[])
+            .stream()
+            .flatMap(value -> Arrays.stream(((Class<?>[]) value)))
+            .anyMatch(ObjectFactory.class::equals));
+  }
+
+  @Test
+  void registerObjectFactoryInExistingPropsTest() {
+    var factoryBean = new JaxWsProxyFactoryBean();
+    factoryBean.setProperties(new LinkedHashMap<>());
+
+    assertDoesNotThrow(() -> XmlUtils.registerObjectFactory(factoryBean, ObjectFactory.class));
+
+    assertTrue(
+        factoryBean
+            .getProperties()
+            .containsKey(XmlUtils.JAXB_ADDITIONAL_CONTEXT_CLASSES_PROPERTY_KEY),
+        "Property missing in factory bean");
   }
 }

@@ -18,9 +18,11 @@ package de.gematik.epa.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Arrays;
 import java.util.Objects;
 
+@Schema(description = "Vertraulichkeitsstufen von Dokumenten")
 public enum Confidentiality {
   NORMAL,
   EXTENDED;

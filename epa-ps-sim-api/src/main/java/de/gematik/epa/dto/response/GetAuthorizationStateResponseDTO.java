@@ -16,10 +16,21 @@
 
 package de.gematik.epa.dto.response;
 
+import static de.gematik.epa.constants.Documentation.STATUS_MSG_DESCRIPTION;
+import static de.gematik.epa.constants.Documentation.SUCCESS_DESCRIPTION;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
+@Schema(
+    description =
+        "Response der getAuthorizationState Abfrage mit den Informationen zu den berechtigten Applikationen")
 public record GetAuthorizationStateResponseDTO(
-    Boolean success, String statusMessage, List<AuthorizedApplication> authorizedApplications) {
+    @JsonProperty(required = true) @Schema(description = SUCCESS_DESCRIPTION) Boolean success,
+    @Schema(description = STATUS_MSG_DESCRIPTION) String statusMessage,
+    @Schema(description = "Liste der authorisierten Applikationen")
+        List<AuthorizedApplication> authorizedApplications) {
 
   public GetAuthorizationStateResponseDTO(ResponseDTO responseDTO) {
     this(responseDTO.success(), responseDTO.statusMessage(), List.of());

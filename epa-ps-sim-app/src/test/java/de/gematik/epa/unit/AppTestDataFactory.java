@@ -18,15 +18,17 @@ package de.gematik.epa.unit;
 
 import static org.apache.cxf.message.Message.*;
 
-import de.gematik.epa.data.Context;
-import de.gematik.epa.ps.konnektor.config.AddressConfig;
-import de.gematik.epa.ps.konnektor.config.BasicAuthenticationConfig;
-import de.gematik.epa.ps.konnektor.config.KonnektorConfiguration;
-import de.gematik.epa.ps.konnektor.config.KonnektorConnectionConfiguration;
-import de.gematik.epa.ps.konnektor.config.ProxyAddressConfig;
-import de.gematik.epa.ps.konnektor.config.TlsConfig;
-import de.gematik.epa.ps.konnektor.impl.KonnektorInterfaceImplGenerator;
-import de.gematik.epa.ps.konnektor.interceptors.HomeCommunityBlockOutInterceptor;
+import de.gematik.epa.config.AddressConfig;
+import de.gematik.epa.config.BasicAuthenticationConfig;
+import de.gematik.epa.config.Context;
+import de.gematik.epa.config.FileInfo;
+import de.gematik.epa.config.ProxyAddressConfig;
+import de.gematik.epa.config.TlsConfig;
+import de.gematik.epa.konnektor.cxf.KonnektorInterfacesCxfImpl;
+import de.gematik.epa.konnektor.cxf.interceptors.HomeCommunityBlockOutInterceptor;
+import de.gematik.epa.ps.konnektor.config.KonnektorConfigurationData;
+import de.gematik.epa.ps.konnektor.config.KonnektorConnectionConfigurationData;
+import java.math.BigInteger;
 import java.util.List;
 import javax.xml.namespace.QName;
 import lombok.experimental.UtilityClass;
@@ -36,8 +38,14 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessageInfo.Type;
 import org.apache.cxf.service.model.ServiceInfo;
+import telematik.ws.conn.cardservice.xsd.v8_1.CardInfoType;
+import telematik.ws.conn.cardservice.xsd.v8_1.Cards;
+import telematik.ws.conn.cardservice.xsd.v8_1.GetPinStatusResponse;
+import telematik.ws.conn.cardservice.xsd.v8_1.PinStatusEnum;
+import telematik.ws.conn.cardservicecommon.xsd.v2_0.CardTypeType;
 import telematik.ws.conn.connectorcommon.xsd.v5_0.Status;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.GetHomeCommunityIDResponse;
+import telematik.ws.conn.eventservice.xsd.v6_1.GetCardsResponse;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetHomeCommunityIDResponse;
 
 @UtilityClass
 public class AppTestDataFactory {
@@ -50,34 +58,35 @@ public class AppTestDataFactory {
   public static final String KVNR = "X123456789";
   public static final String HOME_COMMUNITY_ID = "1.2.3.4.5.67";
 
-  public static KonnektorConfiguration createKonnektorConfiguration() {
-    return new KonnektorConfiguration(
-        createKonnektorConnectionConfiguration(), createKonnektorContext());
+  public static KonnektorConfigurationData createKonnektorConfiguration() {
+    return new KonnektorConfigurationData()
+        .connection(createKonnektorConnectionConfiguration())
+        .context(createKonnektorContext());
   }
 
   public static Context createKonnektorContext() {
     return new Context(MANDANT_ID, CLIENTSYSTEM_ID, WORKPLACE_ID, USER_ID);
   }
 
-  public static KonnektorConnectionConfiguration createKonnektorConnectionConfiguration() {
-    return new KonnektorConnectionConfiguration(
-        createAddress(),
-        createTlsConfig(),
-        createProxyAddressConfig(),
-        createBasicAuthenticationData());
+  public static KonnektorConnectionConfigurationData createKonnektorConnectionConfiguration() {
+    return new KonnektorConnectionConfigurationData()
+        .address(createAddress())
+        .tlsConfig(createTlsConfig())
+        .proxyAddress(createProxyAddressConfig())
+        .basicAuthentication(createBasicAuthenticationData());
   }
 
   public static AddressConfig createAddress() {
     return new AddressConfig(
         "localhost",
         Integer.parseInt(AddressConfig.DEFAULT_PORT),
-        KonnektorInterfaceImplGenerator.HTTPS_PROTOCOL,
+        KonnektorInterfacesCxfImpl.HTTPS_PROTOCOL,
         "services");
   }
 
   public static TlsConfig createTlsConfig() {
     return new TlsConfig(
-        "test.p12",
+        new FileInfo("test.p12"),
         "test1234",
         "PKCS12",
         List.of("TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA"));
@@ -118,5 +127,35 @@ public class AppTestDataFactory {
     getHomeCommunityResponse.setStatus(getStatusOk());
     getHomeCommunityResponse.setHomeCommunityID(HOME_COMMUNITY_ID);
     return getHomeCommunityResponse;
+  }
+
+  public static CardInfoType cardInfoSmb() {
+    var cardInfo = new CardInfoType();
+    cardInfo.setCardType(CardTypeType.SMC_B);
+    cardInfo.setCardVersion(new CardInfoType.CardVersion());
+    cardInfo.setCardHandle("SMB123");
+    cardInfo.setCardHolderName("Arztpraxis Unit Test Olé");
+    cardInfo.setIccsn("80271282350235250218");
+    cardInfo.setCtId("CT1");
+    cardInfo.setSlotId(BigInteger.valueOf(1));
+
+    return cardInfo;
+  }
+
+  public static GetCardsResponse getCardsSmbResponse() {
+    var getCardsResponse = new GetCardsResponse();
+    getCardsResponse.setStatus(getStatusOk());
+    getCardsResponse.setCards(new Cards());
+    getCardsResponse.getCards().getCard().add(cardInfoSmb());
+
+    return getCardsResponse;
+  }
+
+  public static GetPinStatusResponse getPinStatusResponse(PinStatusEnum pinStatus) {
+    BigInteger leftTries = new BigInteger("3");
+    return new GetPinStatusResponse()
+        .withStatus(getStatusOk())
+        .withPinStatus(pinStatus)
+        .withLeftTries(leftTries);
   }
 }

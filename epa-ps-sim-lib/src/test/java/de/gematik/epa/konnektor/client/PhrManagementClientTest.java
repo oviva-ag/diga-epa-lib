@@ -22,23 +22,28 @@ import static de.gematik.epa.unit.util.TestDataFactory.requestFacilityAuthorizat
 import static org.junit.jupiter.api.Assertions.*;
 
 import de.gematik.epa.konnektor.KonnektorUtils;
+import de.gematik.epa.unit.util.TestBase;
+import de.gematik.epa.unit.util.TestDataFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_0.FaultMessage;
-import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_0.PHRManagementServicePortType;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.GetAuthorizationState;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.RequestFacilityAuthorization;
+import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_5.FaultMessage;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetAuthorizationState;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.RequestFacilityAuthorization;
 
-class PhrManagementClientTest {
+class PhrManagementClientTest extends TestBase {
 
   private PhrManagementClient tstObj;
 
   @SneakyThrows
   @BeforeEach
   void initialize() {
-    tstObj = new PhrManagementClient(Mockito.mock(PHRManagementServicePortType.class));
+    TestDataFactory.initKonnektorTestConfiguration(konnektorInterfaceAssembly());
+
+    tstObj =
+        new PhrManagementClient(
+            konnektorContextProvider(), konnektorInterfaceAssembly(), TestDataFactory.KVNR);
 
     Mockito.when(tstObj.phrManagementService().requestFacilityAuthorization(Mockito.any()))
         .thenReturn(requestFacilityAuthorizationResponse());

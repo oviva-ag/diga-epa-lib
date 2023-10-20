@@ -22,8 +22,6 @@ import de.gematik.epa.data.SubmissionSetAuthorConfiguration;
 import de.gematik.epa.ihe.model.Author;
 import de.gematik.epa.ihe.model.document.DocumentInterface;
 import de.gematik.epa.ihe.model.document.DocumentMetadata;
-import de.gematik.epa.ihe.model.simple.AuthorInstitution;
-import de.gematik.epa.konnektor.SmbInformationProvider;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -35,39 +33,43 @@ import lombok.experimental.Accessors;
 import lombok.experimental.Delegate;
 
 @Accessors(fluent = true)
-public class DefaultdataProvider implements DefaultdataInterface {
-
-  @Getter(lazy = true)
-  private static final DefaultdataProvider defaultInstance = new DefaultdataProvider();
+public class DefaultdataProvider {
 
   @Getter @Setter @Delegate private DefaultdataInterface defaultdata;
 
-  public Author getSubmissionSetAuthor(List<? extends DocumentInterface> documents) {
-    var firstDocumentAuthor = getFirstValidAuthorFromDocuments(documents);
-    if (Optional.ofNullable(submissionSetAuthorConfiguration())
-        .map(SubmissionSetAuthorConfiguration::useFirstDocumentAuthor)
-        .orElse(true)) {
-      return firstDocumentAuthor;
-    } else {
-      return getSubmissionSetAuthorFromConfig(firstDocumentAuthor);
-    }
+  @Getter(lazy = true)
+  private final Boolean useFirstDocumentAuthorForSubmissionSet =
+      Optional.ofNullable(submissionSetAuthorConfiguration())
+          .map(SubmissionSetAuthorConfiguration::useFirstDocumentAuthor)
+          .orElse(Boolean.TRUE);
+
+  @Getter(lazy = true)
+  private final Boolean useAuthorInstitutionFromConfigForSubmissionSet =
+      Optional.ofNullable(submissionSetAuthorConfiguration())
+          .map(SubmissionSetAuthorConfiguration::authorInstitutionConfiguration)
+          .map(aic -> !aic.retrieveFromSmb())
+          .orElse(Boolean.FALSE);
+
+  @Getter(lazy = true)
+  private final AuthorInstitutionProvider authorInstitutionProviderFromConfig =
+      () ->
+          Optional.ofNullable(submissionSetAuthorConfiguration())
+              .map(SubmissionSetAuthorConfiguration::authorInstitutionConfiguration)
+              .map(AuthorInstitutionConfiguration::authorInstitution)
+              .orElse(null);
+
+  public Author getSubmissionSetAuthorFromDocuments(List<? extends DocumentInterface> documents) {
+    return getFirstValidAuthorFromDocuments(documents);
   }
 
-  private Author getSubmissionSetAuthorFromConfig(Author firstDocumentAuthor) {
-    var authorInstitution = getAuthorInstitutionFromConfig();
+  public Author getSubmissionSetAuthorFromConfig(
+      AuthorInstitutionProvider authorInstitutionProvider) {
+    var authorInstitution = authorInstitutionProvider.getAuthorInstitution();
     var authorPerson =
         Optional.ofNullable(submissionSetAuthorConfiguration())
             .map(SubmissionSetAuthorConfiguration::authorPerson)
             .orElse(new AuthorPerson(null, null, null, null, null, null));
-    var authorRole =
-        Optional.ofNullable(firstDocumentAuthor).map(Author::authorRole).stream()
-            .flatMap(Collection::stream)
-            .findFirst()
-            .or(
-                () ->
-                    Optional.ofNullable(submissionSetAuthorConfiguration())
-                        .map(SubmissionSetAuthorConfiguration::authorRoleDefault))
-            .orElse(null);
+    var authorRole = this.submissionSetAuthorConfiguration().authorRoleDefault();
 
     return new Author(
         authorPerson.identifier(),
@@ -80,20 +82,6 @@ public class DefaultdataProvider implements DefaultdataInterface {
         Collections.singletonList(authorRole),
         null,
         null);
-  }
-
-  private AuthorInstitution getAuthorInstitutionFromConfig() {
-    if (Optional.ofNullable(submissionSetAuthorConfiguration())
-        .map(SubmissionSetAuthorConfiguration::authorInstitutionConfiguration)
-        .map(AuthorInstitutionConfiguration::retrieveFromSmb)
-        .orElse(true)) {
-      return SmbInformationProvider.defaultInstance().getOneAuthorInstitution();
-    } else {
-      return Optional.ofNullable(submissionSetAuthorConfiguration())
-          .map(SubmissionSetAuthorConfiguration::authorInstitutionConfiguration)
-          .map(AuthorInstitutionConfiguration::authorInstitution)
-          .orElse(null);
-    }
   }
 
   private Author getFirstValidAuthorFromDocuments(

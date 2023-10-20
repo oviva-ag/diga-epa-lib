@@ -18,18 +18,17 @@ package de.gematik.epa.config;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import de.gematik.epa.ihe.model.Author;
 import de.gematik.epa.ihe.model.document.Document;
 import de.gematik.epa.ihe.model.document.DocumentMetadata;
-import de.gematik.epa.konnektor.SmbInformationProvider;
 import de.gematik.epa.unit.util.ResourceLoader;
+import de.gematik.epa.unit.util.TestBase;
 import de.gematik.epa.unit.util.TestDataFactory;
 import java.util.Collection;
 import java.util.List;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
-class DefaultdataProviderTest {
+class DefaultdataProviderTest extends TestBase {
 
   private static final List<Document> documents =
       ResourceLoader.putDocumentWithFolderMetadataRequest().documentSets();
@@ -42,7 +41,8 @@ class DefaultdataProviderTest {
 
     assertDoesNotThrow(() -> tstObj.defaultdata(testdata));
 
-    var submissionSetAuthor = assertDoesNotThrow(() -> tstObj.getSubmissionSetAuthor(documents));
+    var submissionSetAuthor =
+        assertDoesNotThrow(() -> tstObj.getSubmissionSetAuthorFromDocuments(documents));
 
     assertNotNull(submissionSetAuthor);
     assertTrue(
@@ -53,62 +53,56 @@ class DefaultdataProviderTest {
             .anyMatch(author -> author.equals(submissionSetAuthor)));
   }
 
-  @SneakyThrows
-  @Test
-  void getSubmissionSetAuthorFromConfigAndSmbTest() {
-    TestDataFactory.initKonnektorTestConfiguration();
-    TestDataFactory.setupMocksForSmbInformationProvider();
-
-    var tstObj = new DefaultdataProvider();
-    var testdata = TestDataFactory.defaultdata(false, true);
-    tstObj.defaultdata(testdata);
-
-    var submissionSetAuthor = assertDoesNotThrow(() -> tstObj.getSubmissionSetAuthor(documents));
-
-    assertNotNull(submissionSetAuthor);
-    assertEquals(
-        testdata.submissionSetAuthorConfiguration().authorPerson().identifier(),
-        submissionSetAuthor.identifier());
-    assertEquals(
-        testdata.submissionSetAuthorConfiguration().authorPerson().familyName(),
-        submissionSetAuthor.familyName());
-    assertEquals(
-        testdata.submissionSetAuthorConfiguration().authorPerson().givenName(),
-        submissionSetAuthor.givenName());
-    assertEquals(
-        testdata.submissionSetAuthorConfiguration().authorPerson().otherName(),
-        submissionSetAuthor.otherName());
-    assertEquals(
-        testdata.submissionSetAuthorConfiguration().authorPerson().title(),
-        submissionSetAuthor.title());
-    assertEquals(
-        testdata.submissionSetAuthorConfiguration().authorPerson().nameAffix(),
-        submissionSetAuthor.nameAffix());
-
-    assertEquals(
-        SmbInformationProvider.defaultInstance().getOneAuthorInstitution(),
-        submissionSetAuthor.authorInstitution().get(0));
-
-    assertTrue(
-        documents.stream()
-            .map(Document::documentMetadata)
-            .map(DocumentMetadata::author)
-            .flatMap(Collection::stream)
-            .map(Author::authorRole)
-            .flatMap(Collection::stream)
-            .toList()
-            .containsAll(submissionSetAuthor.authorRole()));
-  }
-
   @Test
   void getSubmissionSetAuthorFromConfigOnlyTest() {
     var tstObj = new DefaultdataProvider();
     var testdata = TestDataFactory.defaultdata(false, false);
     tstObj.defaultdata(testdata);
 
-    var submissionSetAuthor = assertDoesNotThrow(() -> tstObj.getSubmissionSetAuthor(documents));
+    var submissionSetAuthor =
+        assertDoesNotThrow(
+            () ->
+                tstObj.getSubmissionSetAuthorFromConfig(
+                    tstObj.authorInstitutionProviderFromConfig()));
 
     assertNotNull(submissionSetAuthor);
+
+    assertTrue(
+        testdata
+            .submissionSetAuthorConfiguration()
+            .authorPerson()
+            .toString()
+            .contains(submissionSetAuthor.familyName()));
+    assertTrue(
+        testdata
+            .submissionSetAuthorConfiguration()
+            .authorPerson()
+            .toString()
+            .contains(submissionSetAuthor.givenName()));
+    assertTrue(
+        testdata
+            .submissionSetAuthorConfiguration()
+            .authorPerson()
+            .toString()
+            .contains(submissionSetAuthor.title()));
+    assertTrue(
+        testdata
+            .submissionSetAuthorConfiguration()
+            .authorPerson()
+            .toString()
+            .contains(submissionSetAuthor.nameAffix()));
+    assertTrue(
+        testdata
+            .submissionSetAuthorConfiguration()
+            .authorPerson()
+            .toString()
+            .contains(submissionSetAuthor.otherName()));
+    assertTrue(
+        testdata
+            .submissionSetAuthorConfiguration()
+            .authorPerson()
+            .toString()
+            .contains(submissionSetAuthor.identifier()));
 
     assertEquals(
         testdata
@@ -124,12 +118,9 @@ class DefaultdataProviderTest {
     var defaultdata = TestDataFactory.defaultdata(false, false);
     tstObj.defaultdata(defaultdata);
 
-    var submissionSetAuthor = assertDoesNotThrow(() -> tstObj.getSubmissionSetAuthor(List.of()));
+    var submissionSetAuthor =
+        assertDoesNotThrow(() -> tstObj.getSubmissionSetAuthorFromDocuments(List.of()));
 
-    assertNotNull(submissionSetAuthor);
-
-    assertEquals(
-        defaultdata.submissionSetAuthorConfiguration().authorRoleDefault(),
-        submissionSetAuthor.authorRole().get(0));
+    assertNull(submissionSetAuthor);
   }
 }

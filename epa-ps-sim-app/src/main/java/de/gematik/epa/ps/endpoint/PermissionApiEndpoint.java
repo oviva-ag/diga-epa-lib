@@ -18,19 +18,20 @@ package de.gematik.epa.ps.endpoint;
 
 import de.gematik.epa.api.impl.PermissionApiImpl;
 import de.gematik.epa.konnektor.KonnektorContextProvider;
-import de.gematik.epa.konnektor.SmbInformationProvider;
-import de.gematik.epa.konnektor.client.EventServiceClient;
-import de.gematik.epa.konnektor.client.PhrManagementClient;
+import de.gematik.epa.konnektor.KonnektorInterfaceAssembly;
 import org.springframework.stereotype.Service;
 
+/**
+ * Create an endpoint of the {@link de.gematik.epa.api.PermissionApi} interface based on the {@link
+ * PermissionApiImpl} implementation.<br>
+ * It is autoconfigured through the cxf-spring-boot-starter-jaxrs, so no manual setup is required
+ */
 @Service
 public class PermissionApiEndpoint extends PermissionApiImpl {
 
   public PermissionApiEndpoint(
       KonnektorContextProvider contextProvider,
-      EventServiceClient eventServiceClient,
-      SmbInformationProvider smbInformationProvider,
-      PhrManagementClient phrMgmtClient) {
-    super(contextProvider, eventServiceClient, smbInformationProvider, phrMgmtClient);
+      KonnektorInterfaceAssembly konnektorInterfaceAssembly) {
+    super(contextProvider, konnektorInterfaceAssembly);
   }
 }

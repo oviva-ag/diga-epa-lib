@@ -28,8 +28,8 @@ import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 import telematik.ws.conn.connectorcommon.xsd.v5_0.Status;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.AuthorizedApplicationType;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.GetAuthorizationStateResponse;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.AuthorizedApplicationType;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetAuthorizationStateResponse;
 import telematik.ws.tel.error.telematikerror.xsd.v2_0.Error;
 
 @UtilityClass

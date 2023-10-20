@@ -18,9 +18,11 @@ package de.gematik.epa.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Arrays;
 import java.util.Objects;
 
+@Schema(description = "Bezeichner für die Ordner in einem Aktenkonto")
 public enum FolderCode {
   EGA,
   CHILDSRECORD,
@@ -45,7 +47,8 @@ public enum FolderCode {
   GYNAECOLOGY_UROLOGY,
   DENTISTRY_OMS,
   OTHER_MEDICAL,
-  OTHER_NON_MEDICAL;
+  OTHER_NON_MEDICAL,
+  DIGA;
 
   @JsonCreator
   public static FolderCode fromValue(String value) {

@@ -22,9 +22,8 @@ import de.gematik.epa.dto.request.PermissionHcpoRequest;
 import de.gematik.epa.dto.response.GetAuthorizationStateResponseDTO;
 import de.gematik.epa.dto.response.ResponseDTO;
 import de.gematik.epa.konnektor.KonnektorContextProvider;
+import de.gematik.epa.konnektor.KonnektorInterfaceAssembly;
 import de.gematik.epa.konnektor.KonnektorUtils;
-import de.gematik.epa.konnektor.SmbInformationProvider;
-import de.gematik.epa.konnektor.client.EventServiceClient;
 import de.gematik.epa.konnektor.client.PhrManagementClient;
 import de.gematik.epa.konnektor.conversion.PermissionUtils;
 import java.util.Objects;
@@ -32,7 +31,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_0.GetAuthorizationStateResponse;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetAuthorizationStateResponse;
 
 @Accessors(fluent = true)
 @RequiredArgsConstructor
@@ -42,35 +41,34 @@ public class PermissionApiImpl implements PermissionApi {
 
   private final KonnektorContextProvider contextProvider;
 
-  private final EventServiceClient eventServiceClient;
-
-  private final SmbInformationProvider smbInformationProvider;
-
-  private final PhrManagementClient phrMgmtClient;
+  private final KonnektorInterfaceAssembly konnektorInterfaceAssembly;
 
   @Override
   public ResponseDTO permissionHcpo(PermissionHcpoRequest request) {
-    try {
-      log.info("Running operation permissionHcpo");
-      var contextHeader =
-          Objects.requireNonNull(
-              contextProvider.createContextHeader(request.kvnr()),
-              "No contextHeader could be created using KVNR "
-                  + Objects.toString(request.kvnr(), "null"));
-      var egkInfo =
-          Objects.requireNonNull(
-              eventServiceClient.getEgkInfoToKvnr(request.kvnr()),
-              "No egkInfo could be retrieved for KVNR " + Objects.toString(request.kvnr(), "null"));
-      var leiInstitutionInfo =
-          Objects.requireNonNull(
-              smbInformationProvider.getOneAuthorInstitution(),
-              "No Leistungserbringer Institution information could be retrieved");
+    log.info("Running operation permissionHcpo");
+    try (var phrMgmtClient =
+        new PhrManagementClient(contextProvider, konnektorInterfaceAssembly, request.kvnr())) {
 
-      var konRequest =
-          PermissionUtils.createRequestFacilityAuthorizationRequest(
-              request, leiInstitutionInfo, egkInfo, contextHeader);
+      var konResponse =
+          phrMgmtClient.runOperation(
+              () -> {
+                var egkInfo =
+                    Objects.requireNonNull(
+                        phrMgmtClient.eventServiceClient().getEgkInfoToKvnr(request.kvnr()),
+                        "No egkInfo could be retrieved for KVNR "
+                            + Objects.toString(request.kvnr(), "null"));
 
-      var konResponse = phrMgmtClient.requestFacilityAuthorization(konRequest);
+                var leiInstitutionInfo =
+                    Objects.requireNonNull(
+                        phrMgmtClient.smbInformationProvider().getAuthorInstitution(),
+                        "No Leistungserbringer Institution information could be retrieved");
+
+                var konRequest =
+                    PermissionUtils.createRequestFacilityAuthorizationRequest(
+                        request, leiInstitutionInfo, egkInfo, phrMgmtClient.contextHeader());
+
+                return phrMgmtClient.requestFacilityAuthorization(konRequest);
+              });
 
       return KonnektorUtils.fromStatus(konResponse.getStatus());
     } catch (Exception e) {
@@ -82,15 +80,12 @@ public class PermissionApiImpl implements PermissionApi {
   @Override
   public GetAuthorizationStateResponseDTO getAuthorizationState(
       GetAuthorizationStateRequest request) {
-    try {
-      log.info("Running operation getAuthorizationState");
-      var contextHeader =
-          Objects.requireNonNull(
-              contextProvider.createContextHeader(request.kvnr()),
-              "No contextHeader could be created using KVNR "
-                  + Objects.toString(request.kvnr(), "null"));
+    log.info("Running operation getAuthorizationState");
+    try (var phrMgmtClient =
+        new PhrManagementClient(contextProvider, konnektorInterfaceAssembly, request.kvnr())) {
 
-      var konRequest = PermissionUtils.createRequestGetAuthorizationStateRequest(contextHeader);
+      var konRequest =
+          PermissionUtils.createRequestGetAuthorizationStateRequest(phrMgmtClient.contextHeader());
       GetAuthorizationStateResponse konResponse =
           phrMgmtClient.requestGetAuthorizationState(konRequest);
       return KonnektorUtils.getAuthorizationStateResponse(konResponse);

@@ -16,7 +16,18 @@
 
 package de.gematik.epa.dto.response;
 
-import de.gematik.epa.ihe.model.response.RegistryObjectLists;
+import static de.gematik.epa.constants.Documentation.STATUS_MSG_DESCRIPTION;
+import static de.gematik.epa.constants.Documentation.SUCCESS_DESCRIPTION;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import de.gematik.epa.ihe.model.response.RegistryObjectLists;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Ergebnisse einer Suche im Aktenkonto")
 public record FindObjectsResponseDTO(
-    Boolean success, String statusMessage, RegistryObjectLists registryObjectLists) {}
+    @JsonProperty(required = true) @Schema(description = SUCCESS_DESCRIPTION) Boolean success,
+    @Schema(description = STATUS_MSG_DESCRIPTION) String statusMessage,
+    @Schema(
+            description =
+                "Listen von gefunden Dokumenten (bzw. den zugehörigen Metadaten), Foldern, Submission-Sets und Associations")
+        RegistryObjectLists registryObjectLists) {}

@@ -18,26 +18,29 @@ package de.gematik.epa.konnektor;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import de.gematik.epa.unit.util.TestBase;
 import de.gematik.epa.unit.util.TestDataFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class SmbInformationProviderTest {
+class SmbInformationProviderTest extends TestBase {
+
+  SmbInformationProvider tstObj;
 
   @BeforeEach
   void beforeEach() {
-    TestDataFactory.initKonnektorTestConfiguration();
+    TestDataFactory.initKonnektorTestConfiguration(konnektorInterfaceAssembly());
+    tstObj = new SmbInformationProvider(konnektorContextProvider(), konnektorInterfaceAssembly());
   }
 
   @SneakyThrows
   @Test
   void getSmbInformationsTest() {
-    TestDataFactory.setupMocksForSmbInformationProvider();
+    TestDataFactory.setupMocksForSmbInformationProvider(konnektorInterfaceAssembly());
     var getCardsSmbResponse = TestDataFactory.getCardsSmbResponse();
 
-    var smbInformations =
-        assertDoesNotThrow(() -> SmbInformationProvider.defaultInstance().getSmbInformations());
+    var smbInformations = assertDoesNotThrow(() -> tstObj.getSmbInformations());
 
     assertNotNull(smbInformations);
     assertEquals(getCardsSmbResponse.getCards().getCard().size(), smbInformations.size());
@@ -45,10 +48,9 @@ class SmbInformationProviderTest {
 
   @Test
   void getAuthorInstitutionsTest() {
-    TestDataFactory.setupMocksForSmbInformationProvider();
+    TestDataFactory.setupMocksForSmbInformationProvider(konnektorInterfaceAssembly());
 
-    var authorInformations =
-        assertDoesNotThrow(() -> SmbInformationProvider.defaultInstance().getAuthorInstitutions());
+    var authorInformations = assertDoesNotThrow(() -> tstObj.getAuthorInstitutions());
 
     assertNotNull(authorInformations);
     assertFalse(authorInformations.isEmpty());
@@ -56,11 +58,9 @@ class SmbInformationProviderTest {
 
   @Test
   void getOneAuthorInstitutionTest() {
-    TestDataFactory.setupMocksForSmbInformationProvider();
+    TestDataFactory.setupMocksForSmbInformationProvider(konnektorInterfaceAssembly());
 
-    var authorInformation =
-        assertDoesNotThrow(
-            () -> SmbInformationProvider.defaultInstance().getOneAuthorInstitution());
+    var authorInformation = assertDoesNotThrow(() -> tstObj.getAuthorInstitution());
 
     assertEquals(TestDataFactory.cardInfoSmb().getCardHolderName(), authorInformation.name());
     assertEquals(TestDataFactory.SMB_AUT_TELEMATIK_ID, authorInformation.identifier());

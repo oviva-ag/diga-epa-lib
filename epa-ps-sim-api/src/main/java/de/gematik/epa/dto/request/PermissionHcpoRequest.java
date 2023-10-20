@@ -16,14 +16,28 @@
 
 package de.gematik.epa.dto.request;
 
+import static de.gematik.epa.constants.Documentation.KVNR_DESCRIPTION;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.util.Set;
 
+@Schema(
+    description =
+        "Request um Adhoc Berechtigungen eines Leistungserbringers (identifiziert durch den Konnektor) auf ein Aktenkonto (identifiziert durch die übergebene KVNR) zu erstellen")
 public record PermissionHcpoRequest(
-    String kvnr,
-    LocalDate expirationDate,
-    Confidentiality authorizedConfidentiality,
-    Set<FolderCode> folderCodes) {
+    @JsonProperty(required = true) @Schema(description = KVNR_DESCRIPTION) String kvnr,
+    @Schema(description = "Datum bis zu dem die Berechtigungen gültig sein sollen")
+        LocalDate expirationDate,
+    @JsonProperty(defaultValue = "normal")
+        @Schema(
+            description = "Für Dokumente welcher Vertraulichkeitsstufe gelten die Berechtigungen")
+        Confidentiality authorizedConfidentiality,
+    @JsonProperty
+        @Schema(
+            description = "Liste der Ordner auf die der Leistungserbringer zugreifen dürfen soll")
+        Set<FolderCode> folderCodes) {
 
   public static final long DEFAULT_DURATION_IN_DAYS = 7L;
 

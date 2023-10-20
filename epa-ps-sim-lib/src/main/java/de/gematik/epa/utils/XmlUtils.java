@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
+import java.util.LinkedHashMap;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.xml.datatype.DatatypeFactory;
@@ -37,11 +38,14 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 import lombok.experimental.UtilityClass;
+import org.apache.cxf.frontend.ClientProxyFactoryBean;
 
 @UtilityClass
 @Accessors(fluent = true)
 public class XmlUtils {
 
+  public static final String JAXB_ADDITIONAL_CONTEXT_CLASSES_PROPERTY_KEY =
+      "jaxb.additionalContextClasses";
   private static final String OBJECT_FACTORY_CLASS_NAME = "ObjectFactory";
 
   @Getter(lazy = true)
@@ -127,6 +131,26 @@ public class XmlUtils {
         .map(GregorianCalendar::from)
         .map(gc -> datatypeFactory().newXMLGregorianCalendar(gc))
         .orElse(null);
+  }
+
+  /**
+   * Register ObjectFactories for the given ClientProxyFactoryBean.<br>
+   * Beware, only classes, annotated with the {@link jakarta.xml.bind.annotation.XmlRegistry}
+   * annotation, are valid ObjectFactories.
+   *
+   * @param factoryBean {@link ClientProxyFactoryBean}, for which object factories need to be
+   *     registered
+   * @param objectFactoryClasses classes, which shall be used as object factories by the factoryBean
+   */
+  public static void registerObjectFactory(
+      @NonNull ClientProxyFactoryBean factoryBean, @NonNull Class<?>... objectFactoryClasses) {
+    Optional.ofNullable(factoryBean.getProperties())
+        .orElseGet(
+            () -> {
+              factoryBean.setProperties(new LinkedHashMap<>());
+              return factoryBean.getProperties();
+            })
+        .put(JAXB_ADDITIONAL_CONTEXT_CLASSES_PROPERTY_KEY, objectFactoryClasses);
   }
 
   // region private

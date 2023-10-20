@@ -16,4 +16,15 @@
 
 package de.gematik.epa.dto.response;
 
-public record ResponseDTO(Boolean success, String statusMessage) {}
+import static de.gematik.epa.constants.Documentation.STATUS_MSG_DESCRIPTION;
+import static de.gematik.epa.constants.Documentation.SUCCESS_DESCRIPTION;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(
+    description =
+        "Standard Response mit der Information, ob eine Operation erfolgreich ausgeführt werden konnte und ggf. Detailinformationen dazu.")
+public record ResponseDTO(
+    @JsonProperty(required = true) @Schema(description = SUCCESS_DESCRIPTION) Boolean success,
+    @Schema(description = STATUS_MSG_DESCRIPTION) String statusMessage) {}

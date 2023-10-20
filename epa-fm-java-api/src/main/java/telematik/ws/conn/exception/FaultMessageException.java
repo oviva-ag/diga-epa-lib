@@ -19,6 +19,7 @@ package telematik.ws.conn.exception;
 import jakarta.xml.ws.WebServiceException;
 import java.util.Optional;
 
+/** Super class for the FaultMessage fault classes, of the Konnektor SOAP services. */
 public abstract class FaultMessageException extends WebServiceException {
 
   protected FaultMessageException() {

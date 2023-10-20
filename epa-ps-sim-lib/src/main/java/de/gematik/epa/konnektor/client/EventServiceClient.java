@@ -17,15 +17,15 @@
 package de.gematik.epa.konnektor.client;
 
 import de.gematik.epa.konnektor.KonnektorContextProvider;
-import de.gematik.epa.konnektor.KonnektorInterfaceProvider;
+import de.gematik.epa.konnektor.KonnektorInterfaceAssembly;
 import de.gematik.epa.konnektor.KonnektorUtils;
-import lombok.AccessLevel;
-import lombok.Getter;
+import java.util.NoSuchElementException;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import telematik.ws.conn.cardservice.xsd.v8_1.CardInfoType;
 import telematik.ws.conn.cardservicecommon.xsd.v2_0.CardTypeType;
+import telematik.ws.conn.connectorcontext.xsd.v2_0.ContextType;
 import telematik.ws.conn.eventservice.wsdl.v6_1.EventServicePortType;
 import telematik.ws.conn.eventservice.xsd.v6_1.GetCards;
 import telematik.ws.conn.eventservice.xsd.v6_1.GetCardsResponse;
@@ -33,15 +33,18 @@ import telematik.ws.conn.eventservice.xsd.v6_1.ObjectFactory;
 
 @Accessors(fluent = true)
 @Slf4j
-public class EventServiceClient {
+public class EventServiceClient extends KonnektorServiceClient {
 
-  @Getter(lazy = true, value = AccessLevel.MODULE)
-  private final EventServicePortType eventService =
-      KonnektorInterfaceProvider.defaultInstance().getKonnektorInterfaceAssembly().eventService();
+  private EventServicePortType eventService;
 
-  @Getter(lazy = true, value = AccessLevel.MODULE)
-  private final KonnektorContextProvider contextProvider =
-      KonnektorContextProvider.defaultInstance();
+  private ContextType context;
+
+  public EventServiceClient(
+      KonnektorContextProvider konnektorContextProvider,
+      KonnektorInterfaceAssembly konnektorInterfaceAssembly) {
+    super(konnektorContextProvider, konnektorInterfaceAssembly);
+    runInitializationSynchronized();
+  }
 
   public GetCardsResponse getSmbInfo() {
     var request = buildGetCards(true, CardTypeType.SM_B);
@@ -61,8 +64,25 @@ public class EventServiceClient {
         .orElse(null);
   }
 
+  public String getCardHandle(CardTypeType cardType) {
+    var getCardsRequest = buildGetCards(true, cardType);
+    return getCards(getCardsRequest).getCards().getCard().stream()
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new NoSuchElementException(
+                    String.format("No %s card was present in the Konnektor", cardType.value())))
+        .getCardHandle();
+  }
+
   public GetCardsResponse getCards(@NonNull GetCards request) {
-    return eventService().getCards(request);
+    return eventService.getCards(request);
+  }
+
+  @Override
+  protected void initialize() {
+    context = konnektorContextProvider.getContext();
+    eventService = konnektorInterfaceAssembly.eventService();
   }
 
   // region private
@@ -70,7 +90,7 @@ public class EventServiceClient {
   private GetCards buildGetCards(final boolean mandantWide, final CardTypeType cardType) {
     final var getCardsRequest = new ObjectFactory().createGetCards();
     getCardsRequest.setCardType(cardType);
-    getCardsRequest.setContext(contextProvider().getContext());
+    getCardsRequest.setContext(context);
     getCardsRequest.setMandantWide(mandantWide);
     return getCardsRequest;
   }

@@ -16,6 +16,15 @@
 
 package de.gematik.epa.dto.request;
 
+import static de.gematik.epa.constants.Documentation.KVNR_DESCRIPTION;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
-public record RetrieveDocumentsRequestDTO(String kvnr, List<String> documentUniqueIds) {}
+@Schema(description = "Request um Dokumente aus einem Aktenkonto abrufen zu können")
+public record RetrieveDocumentsRequestDTO(
+    @JsonProperty(required = true) @Schema(description = KVNR_DESCRIPTION) String kvnr,
+    @JsonProperty(required = true)
+        @Schema(description = "Liste der uniqueIDs der abzurufenden Dokumente")
+        List<String> documentUniqueIds) {}

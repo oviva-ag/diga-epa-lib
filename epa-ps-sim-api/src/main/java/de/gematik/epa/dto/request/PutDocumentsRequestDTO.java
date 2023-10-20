@@ -16,7 +16,22 @@
 
 package de.gematik.epa.dto.request;
 
+import static de.gematik.epa.constants.Documentation.KVNR_DESCRIPTION;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.gematik.epa.ihe.model.document.Document;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
-public record PutDocumentsRequestDTO(String kvnr, List<Document> documentSets) {}
+@Schema(
+    description =
+        "Request um Dokumente in ein Aktenkonto einzustellen. Das Aktenkonto wird dabei durch die übergebene KVNR identifiziert.")
+public record PutDocumentsRequestDTO(
+    @JsonProperty(required = true) @Schema(description = KVNR_DESCRIPTION) String kvnr,
+    @JsonProperty
+        @Schema(
+            description =
+                "Liste der einzustellenden Dokumente inklusive Metadaten und Folderinformationen."
+                    + "Folderinformationen müssen nur übergeben werden, wenn ein Dokument in einen neuen oder bestehenden Folder eingestellt werden soll."
+                    + "Dabei gilt: Ist die entryUUID des Folders gesetzt, ist das Dokument in einen bestehenden Folder einzustellen, enthält die codeList mindestens einen Wert ist ein neuer Folder anzulegen, trifft keines von beiden zu, sind die Folder Metadaten ungültig.")
+        List<Document> documentSets) {}

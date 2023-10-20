@@ -6,7 +6,7 @@
   <parent>
     <groupId>de.gematik.epa</groupId>
     <artifactId>epa-ps-sim</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.1</version>
   </parent>
 
   <artifactId>epa-fm-java-api</artifactId>
@@ -47,6 +47,12 @@
       <artifactId>junit-jupiter</artifactId>
       <version>5.8.1</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.24</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
@@ -149,6 +155,17 @@
                   </extraargs>
                 </wsdlOption>
                 <wsdlOption>
+                  <wsdl>${schema.root.path}/conn/vsds/VSDService.wsdl</wsdl>
+                  <bindingFiles>
+                    <bindingFile>${binding.path}/VSDService_V5_2.jaxws.xjb</bindingFile>
+                    <bindingFile>${binding.path}/VSDService_V5_2.jaxb.xjb</bindingFile>
+                  </bindingFiles>
+                  <extraargs>
+                    <extraarg>-wsdlLocation</extraarg>
+                    <extraarg>${wsdl.github.url}conn/vsds/VSDService.wsdl</extraarg>
+                  </extraargs>
+                </wsdlOption>
+                <wsdlOption>
                   <wsdl>${schema.root.path}/conn/phrs/PHRService_V2_0_2.wsdl</wsdl>
                   <bindingFiles>
                     <bindingFile>${binding.path}/PHRService_V2_0.jaxws.xjb</bindingFile>
@@ -170,6 +187,18 @@
                   <extraargs>
                     <extraarg>-wsdlLocation</extraarg>
                     <extraarg>${wsdl.github.url}conn/phrs/PHRManagementService_V2_0_2.wsdl</extraarg>
+                  </extraargs>
+                </wsdlOption>
+                <wsdlOption>
+                  <wsdl>${schema.root.path}/conn/phrs/PHRManagementService_V2_5_2.wsdl</wsdl>
+                  <bindingFiles>
+                    <bindingFile>${binding.path}/PHRManagementService_V2_5.jaxws.xjb</bindingFile>
+                    <bindingFile>${binding.path}/PHRManagementService_V2_5.jaxb.xjb</bindingFile>
+                    <bindingFile>${binding.path}/PHRCommon_V1_1.jaxb.xjb</bindingFile>
+                  </bindingFiles>
+                  <extraargs>
+                    <extraarg>-wsdlLocation</extraarg>
+                    <extraarg>${wsdl.github.url}conn/phrs/PHRManagementService_V2_5_2.wsdl</extraarg>
                   </extraargs>
                 </wsdlOption>
               </wsdlOptions>
@@ -246,6 +275,18 @@
                     <bindingFile>${binding.path}/ServiceDirectory_V3_1.jaxb.xjb</bindingFile>
                     <bindingFile>${binding.path}/ProductInformation_V1_1.jaxb.xjb</bindingFile>
                     <bindingFile>${binding.path}/ServiceInformation_V2_0.jaxb.xjb</bindingFile>
+                  </bindingFiles>
+                </xsdOption>
+                <xsdOption>
+                  <xsd>${schema.root.path}/fa/vsds/Pruefungsnachweis.xsd</xsd>
+                  <extensionArgs>
+                    <extensionArg>-Xfluent-api</extensionArg>
+                    <extensionArg>-XsimpleEquals</extensionArg>
+                    <extensionArg>-XsimpleHashCode</extensionArg>
+                    <extensionArg>-Xts</extensionArg>
+                  </extensionArgs>
+                  <bindingFiles>
+                    <bindingFile>${binding.path}/Pruefungsnachweis_V1_0.jaxb.xjb</bindingFile>
                   </bindingFiles>
                 </xsdOption>
               </xsdOptions>

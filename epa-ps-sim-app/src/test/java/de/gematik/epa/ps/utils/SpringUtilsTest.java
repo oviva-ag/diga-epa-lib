@@ -18,7 +18,6 @@ package de.gematik.epa.ps.utils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import de.gematik.epa.unit.TestKonnektorInterfaceImplGenerator;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -32,8 +31,8 @@ class SpringUtilsTest {
       ResourceUtils.FILE_URL_PREFIX + WORKING_DIR + "/pom.xml";
   private static final String CLASSPATH_FILE_PATH =
       SpringUtils.class.getCanonicalName().replace(".", "/").concat(".class");
-  private static final String INCOMPLETE_FILE_PATH =
-      TestKonnektorInterfaceImplGenerator.CONNECTOR_SDS_PATH.substring(3);
+  public static final String CONNECTOR_SDS_PATH = "connector.sds";
+  private static final String INCOMPLETE_FILE_PATH = CONNECTOR_SDS_PATH.substring(3);
 
   private final ResourceLoader resourceLoader = new DefaultResourceLoader();
 
