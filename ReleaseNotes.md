@@ -2,6 +2,11 @@
 
 # Release notes ePA-PS-Sim
 
+## Release 1.2.2
+
+### fixed
+- Updated releaseChain.jenkinsfile - use variable TAGNAME for publishing
+
 ## Release 1.2.1
 
 ### fixed

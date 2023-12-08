@@ -22,4 +22,5 @@ public record AuthorPerson(
     String givenName,
     String otherName,
     String nameAffix,
-    String title) {}
+    String title,
+    String oid) {}
