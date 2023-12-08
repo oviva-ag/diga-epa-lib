@@ -68,7 +68,7 @@ public class DefaultdataProvider {
     var authorPerson =
         Optional.ofNullable(submissionSetAuthorConfiguration())
             .map(SubmissionSetAuthorConfiguration::authorPerson)
-            .orElse(new AuthorPerson(null, null, null, null, null, null));
+            .orElse(new AuthorPerson(null, null, null, null, null, null, null));
     var authorRole = this.submissionSetAuthorConfiguration().authorRoleDefault();
 
     return new Author(

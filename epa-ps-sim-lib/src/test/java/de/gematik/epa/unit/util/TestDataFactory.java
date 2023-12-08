@@ -452,7 +452,8 @@ public class TestDataFactory {
         "Manfred",
         "Soldier Boy",
         "von und zu",
-        "Prof. Dr. Freiherr");
+        "Prof. Dr. Freiherr",
+        "1.2.276.0.76.4.16");
   }
 
   public static SubmissionSetAuthorConfiguration submissionSetAuthorConfiguration(
