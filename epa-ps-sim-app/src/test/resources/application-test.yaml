@@ -1,6 +1,0 @@
-konnektor:
-  connection:
-    tlsconfig:
-      keystorefile:
-        filePath: test.p12
-      keystorepassword: test1234
