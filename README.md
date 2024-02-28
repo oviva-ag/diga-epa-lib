@@ -8,9 +8,9 @@ Simple client library for ePA derived from the Gematik [epa-ps-sim](https://gith
     ```shell
     cp ~/workspaces/ocs_configuration_ti_pta/RISE_Oviva001/vKon_Client_172.026.002.035.p12 ~/workspaces/epa-exporter/service/src/main/resources/keys
     ```
-2. Setup the hardcoded config in [KonnektorServiceTest](./epa-poc/src/test/java/com/oviva/poc/KonnektorServiceTest.java)
+2. Set up the hardcoded config in [KonnektorServiceTest](./diga-epa-client/src/test/java/com/oviva/epa/KonnektorServiceTest.java)
 3. Port-forward connectivity to the TI Konnektor and the RISE TI Client
-4. Run the [KonnektorServiceTest](./epa-poc/src/test/java/com/oviva/poc/KonnektorServiceTest.java)
+4. Run the [KonnektorServiceTest](./diga-epa-client/src/test/java/com/oviva/epa/KonnektorServiceTest.java)
 
 ## Tests
 Execute tests in the [KonnektorServiceTest](./epa-poc/src/test/java/com/oviva/poc/KonnektorServiceTest.java) class.
