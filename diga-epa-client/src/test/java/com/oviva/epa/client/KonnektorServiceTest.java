@@ -33,16 +33,23 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import oasis.names.tc.ebxml_regrep.xsd.rs._3.RegistryErrorList;
+import oasis.names.tc.ebxml_regrep.xsd.rs._3.RegistryResponseType;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import telematik.ws.conn.cardservice.xsd.v8_1.PinStatusEnum;
 import telematik.ws.conn.cardservicecommon.xsd.v2_0.CardTypeType;
 
 class KonnektorServiceTest {
+
+  private static final Logger log = LoggerFactory.getLogger(KonnektorServiceTest.class);
 
   // adapt according to what is authorized for your SMC-B testcard,
   // when in doubt ask your provider (e.g. RISE)
@@ -82,18 +89,26 @@ class KonnektorServiceTest {
     var recordIdentifier = new RecordIdentifier(KVNR, hcid);
 
     // 2) read author/telematik ID from SMC-B
-    var authorInstituation =
+    var authorInstitution =
         konnektorService.getAuthorInstitutions().stream()
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("no SMC-B found"));
-    var document =
-        buildDocumentPayload(KVNR, documentId, authorInstituation, EXPORT_XML.getBytes());
+    var document = buildDocumentPayload(KVNR, documentId, authorInstitution, EXPORT_XML.getBytes());
 
     // 3) write the FHIR/MIO document
     var res = konnektorService.writeDocument(recordIdentifier, document);
 
     // then
+    logErrors(res);
     assertThat(res.getStatus(), containsString("Success"));
+  }
+
+  private void logErrors(RegistryResponseType res) {
+    Optional.ofNullable(res)
+        .map(RegistryResponseType::getRegistryErrorList)
+        .map(RegistryErrorList::getRegistryError)
+        .orElse(List.of())
+        .forEach(e -> log.atError().log(e.getCodeContext()));
   }
 
   /** establish a connection to the TI Konnektor */

@@ -1,7 +1,5 @@
 package com.oviva.epa.client;
 
-import com.oviva.epa.client.config.DefaultdataProvider;
-import com.oviva.epa.client.config.MyDefaultdataInterface;
 import com.oviva.epa.client.konn.KonnektorConnection;
 import com.oviva.epa.client.svc.CardServiceClient;
 import com.oviva.epa.client.svc.CertificateServiceClient;
@@ -14,7 +12,6 @@ import com.oviva.epa.client.svc.phr.model.RecordIdentifier;
 import com.oviva.epa.client.svc.phr.model.RecordIdentifierAdapter;
 import de.gematik.epa.LibIheXdsMain;
 import de.gematik.epa.ihe.model.document.Document;
-import de.gematik.epa.ihe.model.document.DocumentInterface;
 import de.gematik.epa.ihe.model.request.DocumentSubmissionRequest;
 import de.gematik.epa.ihe.model.simple.AuthorInstitution;
 import de.gematik.epa.ihe.model.simple.SubmissionSetMetadata;
@@ -71,16 +68,11 @@ public class KonnektorService {
   // TODO: map RegistryResponseType to a VO
   public RegistryResponseType writeDocument(RecordIdentifier recordIdentifier, Document document) {
 
-    // TODO pull out into resonable config
-    var defaultdataProvider = new DefaultdataProvider(new MyDefaultdataInterface());
-
-    var documents = List.of(document);
-
     var docSubmissionRequest =
         new DocumentSubmissionRequest(
             new RecordIdentifierAdapter(recordIdentifier),
-            documents,
-            getSubmissionSetMetadata(documents, defaultdataProvider));
+            List.of(document),
+            getSubmissionSetMetadata(document));
 
     var provideAndRegisterRequest =
         LibIheXdsMain.convertDocumentSubmissionRequest(docSubmissionRequest);
@@ -93,14 +85,13 @@ public class KonnektorService {
     return phrManagementServiceClient.getHomeCommunityID(kvnr);
   }
 
-  private SubmissionSetMetadata getSubmissionSetMetadata(
-      List<? extends DocumentInterface> documents, DefaultdataProvider defaultdataProvider) {
-    return new SubmissionSetMetadata(
-        List.of(defaultdataProvider.getSubmissionSetAuthorFromDocuments(documents)),
-        null,
-        LocalDateTime.now(),
-        null,
-        null,
-        null);
+  private SubmissionSetMetadata getSubmissionSetMetadata(Document document) {
+
+    var author =
+        document.documentMetadata().author().stream()
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("no author"));
+
+    return new SubmissionSetMetadata(List.of(author), null, LocalDateTime.now(), null, null, null);
   }
 }
