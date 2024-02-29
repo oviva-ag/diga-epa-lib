@@ -29,8 +29,8 @@ public class SmbInformationServiceClient {
 
   private final CertificateServiceClient certificateServiceClient;
 
-  public SmbInformationServiceClient(EventServiceClient eventServiceClient,
-      CertificateServiceClient certificateServiceClient) {
+  public SmbInformationServiceClient(
+      EventServiceClient eventServiceClient, CertificateServiceClient certificateServiceClient) {
     this.eventServiceClient = eventServiceClient;
     this.certificateServiceClient = certificateServiceClient;
   }
@@ -40,19 +40,13 @@ public class SmbInformationServiceClient {
   }
 
   public List<SmbInformation> getSmbInformations() {
-    var insertedSmbs = eventServiceClient
-        .getSmbInfo()
-        .getCards()
-        .getCard();
+    var insertedSmbs = eventServiceClient.getSmbInfo().getCards().getCard();
 
-    return insertedSmbs.stream()
-        .map(this::retrieveSmbInformation)
-        .toList();
+    return insertedSmbs.stream().map(this::retrieveSmbInformation).toList();
   }
 
   public List<AuthorInstitution> getAuthorInstitutions() {
-    return getSmbInformations()
-        .stream()
+    return getSmbInformations().stream()
         .map(SmbInformationServiceClient::smbInformationToAuthorInstitution)
         .toList();
   }

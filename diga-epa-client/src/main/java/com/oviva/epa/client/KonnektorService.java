@@ -45,14 +45,17 @@ public class KonnektorService {
     phrManagementServiceClient =
         new PhrManagementServiceClient(connection.phrManagementService(), konnektorContext);
 
-    var certificateServiceClient = new CertificateServiceClient(connection.certificateService(), konnektorContext);
+    var certificateServiceClient =
+        new CertificateServiceClient(connection.certificateService(), konnektorContext);
 
-    smbInformationServiceClient = new SmbInformationServiceClient(eventServiceClient, certificateServiceClient);
+    smbInformationServiceClient =
+        new SmbInformationServiceClient(eventServiceClient, certificateServiceClient);
   }
 
   public List<AuthorInstitution> getAuthorInstitutions() {
     return smbInformationServiceClient.getAuthorInstitutions();
   }
+
   // TODO: map CardInfoType to a VO
   public List<CardInfoType> getCardsInfo() {
     // don't be fooled by the name, this returns a list of cards...

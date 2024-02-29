@@ -82,11 +82,12 @@ class KonnektorServiceTest {
     var recordIdentifier = new RecordIdentifier(KVNR, hcid);
 
     // 2) read author/telematik ID from SMC-B
-    var authorInstituation = konnektorService.getAuthorInstitutions()
-        .stream()
-        .findFirst()
-        .orElseThrow(()->new IllegalStateException("no SMC-B found"));
-    var document = buildDocumentPayload(KVNR, documentId, authorInstituation, EXPORT_XML.getBytes());
+    var authorInstituation =
+        konnektorService.getAuthorInstitutions().stream()
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("no SMC-B found"));
+    var document =
+        buildDocumentPayload(KVNR, documentId, authorInstituation, EXPORT_XML.getBytes());
 
     // 3) write the FHIR/MIO document
     var res = konnektorService.writeDocument(recordIdentifier, document);
@@ -128,7 +129,8 @@ class KonnektorServiceTest {
     return new KonnektorService(conn, ctx);
   }
 
-  private Document buildDocumentPayload(String kvnr, String id, AuthorInstitution authorInstitution, byte[] contents) {
+  private Document buildDocumentPayload(
+      String kvnr, String id, AuthorInstitution authorInstitution, byte[] contents) {
     var entryUUID = UUID.randomUUID().toString();
     var repositoryUniqueId = UUID.randomUUID().toString();
 
@@ -146,13 +148,6 @@ class KonnektorServiceTest {
                     // Der identifier in AuthorInstitution muss eine gültige TelematikId sein, so
                     // wie sie z. B. auf der SMC-B-Karte enthalten ist
                     List.of(authorInstitution),
-//                    List.of(
-//                        // TODO: Could read from cards
-//                        // see also
-//                        // https://github.com/gematik/epa-ps-sim/blob/main/epa-ps-sim-lib/src/main/java/de/gematik/epa/konnektor/SmbInformationProvider.java
-//                        new AuthorInstitution(
-//                            "DiGA-Hersteller und Anbieter Prof. Dr. Tina Gräfin CesaTEST-ONLY",
-//                            "9-SMC-B-Testkarte-883110000145356")),
                     List.of("11^^^&amp;1.3.6.1.4.1.19376.3.276.1.5.13&amp;ISO"),
                     List.of(),
                     List.of())),

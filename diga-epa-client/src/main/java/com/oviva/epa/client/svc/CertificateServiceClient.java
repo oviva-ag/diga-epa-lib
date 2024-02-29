@@ -40,12 +40,11 @@ public class CertificateServiceClient {
 
   private final KonnektorContext context;
 
-  public CertificateServiceClient(CertificateServicePortType certificateService,
-      KonnektorContext context) {
+  public CertificateServiceClient(
+      CertificateServicePortType certificateService, KonnektorContext context) {
     this.certificateService = certificateService;
     this.context = context;
   }
-
 
   public ReadCardCertificateResponse readCardCertificate(@NonNull ReadCardCertificate request) {
     return certificateService.readCardCertificate(request);

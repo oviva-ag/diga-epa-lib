@@ -39,8 +39,7 @@ public class CertificateUtils {
   private static final String CERTIFICATE_TYPE_X509 = "X.509";
   private static Logger log = LoggerFactory.getLogger(CertificateUtils.class);
 
-  private CertificateUtils() {
-  }
+  private CertificateUtils() {}
 
   /**
    * Parse an X509 certificate in encoded form into an {@link X509Certificate}
