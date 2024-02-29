@@ -17,6 +17,12 @@
   </properties>
   <dependencies>
     <dependency>
+      <groupId>com.oviva.epa</groupId>
+      <artifactId>epa-fm-api</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.github.spotbugs</groupId>
       <artifactId>spotbugs-annotations</artifactId>
     </dependency>
@@ -25,16 +31,15 @@
       <groupId>de.gematik.epa</groupId>
       <artifactId>lib-ihe-xds</artifactId>
     </dependency>
+
     <dependency>
-      <groupId>com.oviva.epa</groupId>
-      <artifactId>epa-fm-api</artifactId>
-      <version>${project.parent.version}</version>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcutil-jdk18on</artifactId>
     </dependency>
 
     <dependency>
       <groupId>com.sun.xml.bind</groupId>
       <artifactId>jaxb-impl</artifactId>
-      <version>4.0.3</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

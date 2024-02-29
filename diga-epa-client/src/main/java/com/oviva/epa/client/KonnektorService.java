@@ -4,16 +4,19 @@ import com.oviva.epa.client.config.DefaultdataProvider;
 import com.oviva.epa.client.config.MyDefaultdataInterface;
 import com.oviva.epa.client.konn.KonnektorConnection;
 import com.oviva.epa.client.svc.CardServiceClient;
+import com.oviva.epa.client.svc.CertificateServiceClient;
 import com.oviva.epa.client.svc.EventServiceClient;
 import com.oviva.epa.client.svc.PhrManagementServiceClient;
 import com.oviva.epa.client.svc.model.KonnektorContext;
 import com.oviva.epa.client.svc.phr.PhrServiceClient;
+import com.oviva.epa.client.svc.phr.SmbInformationServiceClient;
 import com.oviva.epa.client.svc.phr.model.RecordIdentifier;
 import com.oviva.epa.client.svc.phr.model.RecordIdentifierAdapter;
 import de.gematik.epa.LibIheXdsMain;
 import de.gematik.epa.ihe.model.document.Document;
 import de.gematik.epa.ihe.model.document.DocumentInterface;
 import de.gematik.epa.ihe.model.request.DocumentSubmissionRequest;
+import de.gematik.epa.ihe.model.simple.AuthorInstitution;
 import de.gematik.epa.ihe.model.simple.SubmissionSetMetadata;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,24 +26,33 @@ import telematik.ws.conn.cardservice.xsd.v8_1.PinStatusEnum;
 
 public class KonnektorService {
 
-  private EventServiceClient eventServiceClient;
-  private CardServiceClient cardServiceClient;
-  private PhrManagementServiceClient phrManagementServiceClient;
-  private PhrServiceClient phrServiceClient;
+  private final EventServiceClient eventServiceClient;
+  private final CardServiceClient cardServiceClient;
+  private final PhrManagementServiceClient phrManagementServiceClient;
+  private final PhrServiceClient phrServiceClient;
+
+  private final SmbInformationServiceClient smbInformationServiceClient;
 
   public KonnektorService(KonnektorConnection connection, KonnektorContext konnektorContext) {
 
-    this.eventServiceClient = new EventServiceClient(connection.eventService(), konnektorContext);
+    eventServiceClient = new EventServiceClient(connection.eventService(), konnektorContext);
 
-    this.cardServiceClient =
+    cardServiceClient =
         new CardServiceClient(connection.cardService(), konnektorContext, eventServiceClient);
 
-    this.phrServiceClient = new PhrServiceClient(connection.phrService(), konnektorContext);
+    phrServiceClient = new PhrServiceClient(connection.phrService(), konnektorContext);
 
-    this.phrManagementServiceClient =
+    phrManagementServiceClient =
         new PhrManagementServiceClient(connection.phrManagementService(), konnektorContext);
+
+    var certificateServiceClient = new CertificateServiceClient(connection.certificateService(), konnektorContext);
+
+    smbInformationServiceClient = new SmbInformationServiceClient(eventServiceClient, certificateServiceClient);
   }
 
+  public List<AuthorInstitution> getAuthorInstitutions() {
+    return smbInformationServiceClient.getAuthorInstitutions();
+  }
   // TODO: map CardInfoType to a VO
   public List<CardInfoType> getCardsInfo() {
     // don't be fooled by the name, this returns a list of cards...
