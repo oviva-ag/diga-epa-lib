@@ -106,11 +106,11 @@ public class KonnektorConnectionFactory {
    * Get the client implementation of the {@link SdsApi}, for the retrieval of the connection
    * information of the Konnektor web services.
    */
-  private SdsApi sdsApi() throws MalformedURLException {
+  private SdsApi sdsApi() {
     var factoryBean = new JAXRSClientFactoryBean();
     factoryBean.setServiceClass(SdsApi.class);
     factoryBean.getFeatures().add(loggingFeature);
-    factoryBean.setAddress(configuration.address().createUrl().toString());
+    factoryBean.setAddress(configuration.uri().toString());
 
     final SdsApi sdsApi = factoryBean.create(SdsApi.class);
 
@@ -364,9 +364,9 @@ public class KonnektorConnectionFactory {
 
   private Boolean determineIfTlsPreferred() {
     return Optional.ofNullable(configuration)
-        .map(KonnektorConnectionConfiguration::address)
-        .map(KonnektorConnectionConfiguration.AddressConfig::protocol)
-        .map(prtcl -> prtcl.equalsIgnoreCase(HTTPS_PROTOCOL))
+        .map(KonnektorConnectionConfiguration::uri)
+        .map(URI::getScheme)
+        .map(scheme -> scheme.equalsIgnoreCase(HTTPS_PROTOCOL))
         .orElse(Boolean.TRUE);
   }
 
@@ -388,7 +388,7 @@ public class KonnektorConnectionFactory {
         .filter(KonnektorConnectionConfiguration.BasicAuthenticationConfig::enabled)
         .ifPresent(
             ba -> {
-              AuthorizationPolicy authorizationPolicy = new AuthorizationPolicy();
+              var authorizationPolicy = new AuthorizationPolicy();
               authorizationPolicy.setUserName(Objects.requireNonNull(ba.username()));
               authorizationPolicy.setPassword(Objects.requireNonNull(ba.password()));
               authorizationPolicy.setAuthorizationType("Basic");

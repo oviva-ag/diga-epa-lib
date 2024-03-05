@@ -17,12 +17,13 @@
 package com.oviva.epa.client.konn;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import javax.net.ssl.KeyManager;
 
 public record KonnektorConnectionConfiguration(
-    AddressConfig address,
+    URI uri,
     TlsConfig tlsConfig,
     ProxyAddressConfig proxyAddress,
     BasicAuthenticationConfig basicAuthentication) {

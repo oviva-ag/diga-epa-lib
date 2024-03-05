@@ -6,9 +6,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
 import com.oviva.epa.client.konn.KonnektorConnectionConfiguration;
-import com.oviva.epa.client.konn.KonnektorConnectionConfiguration.AddressConfig;
-import com.oviva.epa.client.konn.KonnektorConnectionConfiguration.BasicAuthenticationConfig;
-import com.oviva.epa.client.konn.KonnektorConnectionConfiguration.ProxyAddressConfig;
 import com.oviva.epa.client.konn.KonnektorConnectionConfiguration.TlsConfig;
 import com.oviva.epa.client.konn.KonnektorConnectionFactory;
 import com.oviva.epa.client.svc.model.KonnektorContext;
@@ -25,6 +22,7 @@ import de.gematik.epa.ihe.model.document.Document;
 import de.gematik.epa.ihe.model.document.DocumentMetadata;
 import de.gematik.epa.ihe.model.simple.AuthorInstitution;
 import java.io.IOException;
+import java.net.URI;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -130,10 +128,7 @@ class KonnektorServiceTest {
 
     var config =
         new KonnektorConnectionConfiguration(
-            new AddressConfig("localhost", 4443, "https", "/"),
-            tlsConfig,
-            new ProxyAddressConfig(null, null, false),
-            new BasicAuthenticationConfig(null, null, false));
+            URI.create("https://localhost:4443"), tlsConfig, null, null);
 
     var cf = new KonnektorConnectionFactory(config);
     var conn = cf.connect();
