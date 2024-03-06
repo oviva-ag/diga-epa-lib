@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.oviva.epa.client.konn;
+package com.oviva.epa.client.konn.internal;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.util.List;
 import javax.net.ssl.KeyManager;
+import javax.net.ssl.TrustManager;
 
 public record KonnektorConnectionConfiguration(
+
+    /** the URI to the Konnektor APIs (Fachmodule) */
     URI uri,
     TlsConfig tlsConfig,
     ProxyAddressConfig proxyAddress,
@@ -30,6 +31,7 @@ public record KonnektorConnectionConfiguration(
 
   public record TlsConfig(
       List<KeyManager> keyManagers,
+      List<TrustManager> trustManagers,
 
       // Liste der zulässigen Ciphersuiten",
       // example: "['TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384',
@@ -37,27 +39,6 @@ public record KonnektorConnectionConfiguration(
       // 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256', 'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA',
       // 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA']")
       List<String> ciphersuites) {}
-
-  // Daten um die Address-URL eines Konnektors zu konfigurieren
-  public record AddressConfig(String host, Integer port, String protocol, String path) {
-
-    private static final String DELIMITER = "/";
-
-    public URL createUrl() throws MalformedURLException {
-      String fullPath = createFullPath();
-      return new URL(protocol, host, port, fullPath);
-    }
-
-    private String createFullPath() {
-      String fullPath;
-      if (path != null && path.startsWith(DELIMITER)) {
-        fullPath = path;
-      } else {
-        fullPath = DELIMITER + (path != null ? path : "");
-      }
-      return fullPath;
-    }
-  }
 
   public record ProxyAddressConfig(String address, Integer port, boolean enabled) {}
 

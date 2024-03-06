@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.oviva.epa.client.konn.interceptors;
+package com.oviva.epa.client.konn.internal.interceptors;
 
 import static org.apache.cxf.message.Message.*;
 
