@@ -16,7 +16,7 @@
 
 package com.oviva.epa.client.svc;
 
-import com.oviva.epa.client.konn.util.KonnektorUtils;
+import com.oviva.epa.client.konn.internal.util.KonnektorUtils;
 import com.oviva.epa.client.svc.model.KonnektorContext;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.math.BigInteger;

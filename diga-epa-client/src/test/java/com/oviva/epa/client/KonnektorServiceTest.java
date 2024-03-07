@@ -5,9 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
-import com.oviva.epa.client.konn.KonnektorConnectionConfiguration;
-import com.oviva.epa.client.konn.KonnektorConnectionConfiguration.TlsConfig;
-import com.oviva.epa.client.konn.KonnektorConnectionFactory;
+import com.oviva.epa.client.konn.KonnektorConnectionFactoryBuilder;
 import com.oviva.epa.client.svc.model.KonnektorContext;
 import com.oviva.epa.client.svc.phr.model.RecordIdentifier;
 import de.gematik.epa.conversion.internal.enumerated.ClassCode;
@@ -114,23 +112,15 @@ class KonnektorServiceTest {
 
     // these are the TLS client credentials as received from the Konnektor provider (e.g. RISE)
     var keys = loadKeys();
+    var uri = URI.create("https://localhost:4443");
 
-    var tlsConfig =
-        new TlsConfig(
-            keys,
-            List.of(
-                "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-                "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"));
+    var cf =
+        KonnektorConnectionFactoryBuilder.newBuilder()
+            .clientKeys(keys)
+            .konnektorUri(uri)
+            .trustAllServers() // currently we don't validate the server's certificate
+            .build();
 
-    var config =
-        new KonnektorConnectionConfiguration(
-            URI.create("https://localhost:4443"), tlsConfig, null, null);
-
-    var cf = new KonnektorConnectionFactory(config);
     var conn = cf.connect();
 
     // these need to be set up accordingly in the settings of the actual Konnektor

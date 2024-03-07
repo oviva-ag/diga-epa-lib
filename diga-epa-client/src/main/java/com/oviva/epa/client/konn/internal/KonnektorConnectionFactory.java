@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package com.oviva.epa.client.konn;
+package com.oviva.epa.client.konn.internal;
 
 import static jakarta.xml.ws.soap.SOAPBinding.SOAP11HTTP_BINDING;
 import static jakarta.xml.ws.soap.SOAPBinding.SOAP12HTTP_BINDING;
 import static jakarta.xml.ws.soap.SOAPBinding.SOAP12HTTP_MTOM_BINDING;
 
-import com.oviva.epa.client.konn.interceptors.HomeCommunityBlockOutInterceptor;
-import com.oviva.epa.client.konn.interceptors.MtomConfigOutInterceptor;
-import com.oviva.epa.client.konn.util.XmlUtils;
+import com.oviva.epa.client.konn.KonnektorConnection;
+import com.oviva.epa.client.konn.internal.interceptors.HomeCommunityBlockOutInterceptor;
+import com.oviva.epa.client.konn.internal.interceptors.MtomConfigOutInterceptor;
+import com.oviva.epa.client.konn.internal.util.XmlUtils;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -34,7 +33,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.ext.logging.LoggingFeature;
@@ -80,7 +78,7 @@ public class KonnektorConnectionFactory {
     this.isTlsPreferred = determineIfTlsPreferred();
   }
 
-  public KonnektorConnection connect() throws MalformedURLException {
+  public KonnektorConnection connect() {
 
     var connectorServices = sdsApi().getConnectorSds();
 
@@ -92,7 +90,7 @@ public class KonnektorConnectionFactory {
     var signatureService = createSignatureService(connectorServices);
     var vsdService = createVSDService(connectorServices);
 
-    return new KonnektorConnection(
+    return new KonnektorConnectionImpl(
         phrService,
         phrManagementService,
         eventService,
@@ -145,7 +143,7 @@ public class KonnektorConnectionFactory {
    * @param <T> type of the Konnektor service, for which the client implementation is to be created
    * @return T returns the created client implementation of the given class type
    */
-  protected <T> T getClientProxyImpl(
+  private <T> T getClientProxyImpl(
       @NonNull final Class<T> portType,
       @NonNull final String soapBinding,
       @NonNull final URI endpointAddress,
@@ -180,27 +178,7 @@ public class KonnektorConnectionFactory {
     tlsParams.setDisableCNCheck(true);
 
     tlsParams.setTrustManagers(
-        new TrustManager[] {
-          new X509TrustManager() {
-            @Override
-            @SuppressWarnings("java:S4830")
-            public void checkClientTrusted(final X509Certificate[] chain, final String authType) {
-              /* We dont have the certifactes of the konnektor, so do nothing here*/
-            }
-
-            @Override
-            @SuppressWarnings("java:S4830")
-            public void checkServerTrusted(final X509Certificate[] chain, final String authType) {
-              /* We dont have the certifactes of the konnektor, so do nothing here*/
-              // TODO: use truststore?
-            }
-
-            @Override
-            public X509Certificate[] getAcceptedIssuers() {
-              return new X509Certificate[0];
-            }
-          }
-        });
+        configuration.tlsConfig().trustManagers().toArray(new TrustManager[0]));
 
     return tlsParams;
   }

@@ -16,13 +16,9 @@
 
 package com.oviva.epa.client.svc;
 
-import com.oviva.epa.client.konn.util.KonnektorUtils;
 import com.oviva.epa.client.svc.model.KonnektorContext;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.NoSuchElementException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import telematik.ws.conn.cardservice.xsd.v8_1.CardInfoType;
 import telematik.ws.conn.cardservicecommon.xsd.v2_0.CardTypeType;
 import telematik.ws.conn.eventservice.wsdl.v6_1.EventServicePortType;
 import telematik.ws.conn.eventservice.xsd.v6_1.GetCards;
@@ -30,8 +26,6 @@ import telematik.ws.conn.eventservice.xsd.v6_1.GetCardsResponse;
 import telematik.ws.conn.eventservice.xsd.v6_1.ObjectFactory;
 
 public class EventServiceClient {
-
-  private static Logger log = LoggerFactory.getLogger(EventServiceClient.class);
 
   private final EventServicePortType eventService;
 
@@ -45,19 +39,6 @@ public class EventServiceClient {
   public GetCardsResponse getSmbInfo() {
     var request = buildGetCards(true, CardTypeType.SM_B);
     return getCards(request);
-  }
-
-  public CardInfoType getEgkInfoToKvnr(@NonNull String kvnr) {
-    var request = buildGetCards(true, CardTypeType.EGK);
-    var response = getCards(request);
-
-    KonnektorUtils.logWarningIfPresent(
-        log, response.getStatus(), KonnektorUtils.warnMsgWithOperationName("getCards"));
-
-    return response.getCards().getCard().stream()
-        .filter(ci -> kvnr.equals(ci.getKvnr()))
-        .findFirst()
-        .orElse(null);
   }
 
   public String getCardHandle(CardTypeType cardType) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.oviva.epa.client.konn.util;
+package com.oviva.epa.client.konn.internal.util;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Optional;

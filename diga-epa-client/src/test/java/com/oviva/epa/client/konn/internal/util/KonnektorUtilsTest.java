@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.oviva.epa.client.konn.util;
+package com.oviva.epa.client.konn.internal.util;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
