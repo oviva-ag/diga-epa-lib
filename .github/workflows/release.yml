@@ -1,0 +1,42 @@
+name: Build and Publish package to GitHub Packages
+on:
+  push:
+    tags:
+      - 'diga-epa-lib/v[0-9]+.[0-9]+.[0-9]+-[a-z]+.[0-9]+'
+jobs:
+  release:
+    env:
+      NAMESPACE: 'diga-epa-lib'
+      MAVEN_USERNAME: continuousintegration-oviva
+      MAVEN_PASSWORD: ${{ secrets.MAVEN_REPO_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          cache: 'maven'
+      - name: Get version
+        id: version
+        run: |
+          echo "parsing version from ref '$GITHUB_REF'"
+
+          VERSION=$(echo "$GITHUB_REF"  | sed -e "s|refs/tags/$NAMESPACE/||g" | sed -E 's/v?([0-9]+)\.([0-9]+)\.([0-9]+)(-[a-zA-Z]+(\.[0-9]+)?)?/\1.\2.\3\4/g')
+          echo "version: '$VERSION'"
+
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "ARTIFACT_ID=$NAMESPACE" >> $GITHUB_ENV
+      - name: Update Version
+        run: |
+          echo "updating version to '$VERSION'"
+          mvn -B versions:set "-DnewVersion=$VERSION"
+      - name: Publish package
+        run: mvn --batch-mode deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
+      packages: write

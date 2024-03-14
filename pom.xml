@@ -40,6 +40,14 @@
     <apache-cxf.version>4.0.3</apache-cxf.version>
   </properties>
 
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>https://maven.pkg.github.com/oviva-ag/diga-epa-lib</url>
+    </repository>
+  </distributionManagement>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
