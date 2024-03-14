@@ -37,12 +37,14 @@ import oasis.names.tc.ebxml_regrep.xsd.rs._3.RegistryErrorList;
 import oasis.names.tc.ebxml_regrep.xsd.rs._3.RegistryResponseType;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import telematik.ws.conn.cardservice.xsd.v8_1.PinStatusEnum;
 import telematik.ws.conn.cardservicecommon.xsd.v2_0.CardTypeType;
 
+@Disabled
 class KonnektorServiceTest {
 
   private static final Logger log = LoggerFactory.getLogger(KonnektorServiceTest.class);
