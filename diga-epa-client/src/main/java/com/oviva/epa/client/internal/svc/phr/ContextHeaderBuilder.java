@@ -1,7 +1,7 @@
-package com.oviva.epa.client.svc.phr;
+package com.oviva.epa.client.internal.svc.phr;
 
-import com.oviva.epa.client.svc.model.KonnektorContext;
-import com.oviva.epa.client.svc.phr.model.RecordIdentifier;
+import com.oviva.epa.client.internal.svc.model.KonnektorContext;
+import com.oviva.epa.client.internal.svc.phr.model.RecordIdentifier;
 import telematik.ws.conn.connectorcontext.xsd.v2_0.ContextType;
 import telematik.ws.conn.phrs.phrservice.xsd.v2_0.ContextHeader;
 import telematik.ws.fd.phr.phrcommon.xsd.v1_1.InsurantIdType;

@@ -1,6 +1,6 @@
-package com.oviva.epa.client.svc;
+package com.oviva.epa.client.internal.svc;
 
-import com.oviva.epa.client.svc.model.KonnektorContext;
+import com.oviva.epa.client.internal.svc.model.KonnektorContext;
 import telematik.ws.conn.connectorcontext.xsd.v2_0.ContextType;
 import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_5.PHRManagementServicePortType;
 import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.ObjectFactory;

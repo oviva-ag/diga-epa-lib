@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.oviva.epa.client.svc.phr.model;
+package com.oviva.epa.client.internal.svc.phr.model;
 
 public record AuthorPerson(
     String identifier,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.oviva.epa.client.svc.utils;
+package com.oviva.epa.client.internal.svc.utils;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.ByteArrayInputStream;

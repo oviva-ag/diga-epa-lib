@@ -1,4 +1,4 @@
-package com.oviva.epa.client.svc.phr.model;
+package com.oviva.epa.client.internal.svc.phr.model;
 
 import de.gematik.epa.ihe.model.simple.InsurantId;
 import telematik.ws.fd.phr.phrcommon.xsd.v1_1.InsurantIdType;

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.oviva.epa.client.svc;
+package com.oviva.epa.client.internal.svc;
 
-import com.oviva.epa.client.svc.model.KonnektorContext;
+import com.oviva.epa.client.internal.svc.model.KonnektorContext;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.NoSuchElementException;
 import telematik.ws.conn.cardservicecommon.xsd.v2_0.CardTypeType;
