@@ -2,12 +2,13 @@ package com.oviva.epa.client;
 
 import static com.oviva.epa.client.Export.EXPORT_XML;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.oviva.epa.client.konn.KonnektorConnectionFactoryBuilder;
-import com.oviva.epa.client.svc.model.KonnektorContext;
-import com.oviva.epa.client.svc.phr.model.RecordIdentifier;
+import com.oviva.epa.client.model.Card;
+import com.oviva.epa.client.model.PinStatus;
+import com.oviva.epa.client.model.RecordIdentifier;
 import de.gematik.epa.conversion.internal.enumerated.ClassCode;
 import de.gematik.epa.conversion.internal.enumerated.ConfidentialityCode;
 import de.gematik.epa.conversion.internal.enumerated.EventCode;
@@ -29,20 +30,15 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
-import oasis.names.tc.ebxml_regrep.xsd.rs._3.RegistryErrorList;
-import oasis.names.tc.ebxml_regrep.xsd.rs._3.RegistryResponseType;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import telematik.ws.conn.cardservice.xsd.v8_1.PinStatusEnum;
-import telematik.ws.conn.cardservicecommon.xsd.v2_0.CardTypeType;
 
 @Disabled
 class KonnektorServiceTest {
@@ -64,15 +60,15 @@ class KonnektorServiceTest {
     assertThat(cards.size(), equalTo(1));
 
     var card = cards.get(0);
-    assertThat(card.getCardType(), equalTo(CardTypeType.SMC_B));
+    assertThat(card.type(), equalTo(Card.CardType.SMC_B));
     assertThat(
-        card.getCardHolderName(),
+        card.holderName(),
         equalTo("DiGA-Hersteller und Anbieter Prof. Dr. Tina Gräfin CesaTEST-ONLY"));
 
-    var pinStatus = konnektorService.verifyPin(card.getCardHandle());
+    var pinStatus = konnektorService.verifySmcPin(card.handle());
 
     // if the status is VERIFIABLE, it means the PIN must be reinserted again
-    assertThat(pinStatus, equalTo(PinStatusEnum.VERIFIED));
+    assertThat(pinStatus, equalTo(PinStatus.VERIFIED));
   }
 
   @Test
@@ -94,19 +90,7 @@ class KonnektorServiceTest {
     var document = buildDocumentPayload(KVNR, documentId, authorInstitution, EXPORT_XML.getBytes());
 
     // 3) write the FHIR/MIO document
-    var res = konnektorService.writeDocument(recordIdentifier, document);
-
-    // then
-    logErrors(res);
-    assertThat(res.getStatus(), containsString("Success"));
-  }
-
-  private void logErrors(RegistryResponseType res) {
-    Optional.ofNullable(res)
-        .map(RegistryResponseType::getRegistryErrorList)
-        .map(RegistryErrorList::getRegistryError)
-        .orElse(List.of())
-        .forEach(e -> log.atError().log(e.getCodeContext()));
+    assertDoesNotThrow(() -> konnektorService.writeDocument(recordIdentifier, document));
   }
 
   /** establish a connection to the TI Konnektor */
@@ -125,10 +109,13 @@ class KonnektorServiceTest {
 
     var conn = cf.connect();
 
-    // these need to be set up accordingly in the settings of the actual Konnektor
-    var ctx = new KonnektorContext("m", "c", "a", "admin");
-
-    return new KonnektorService(conn, ctx);
+    return KonnektorServiceBuilder.newBuilder()
+        .connection(conn)
+        .workplaceId("a")
+        .clientSystemId("c")
+        .mandantId("m")
+        .userId("admin")
+        .build();
   }
 
   private Document buildDocumentPayload(

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.oviva.epa.client.svc;
+package com.oviva.epa.client.internal.svc;
 
-import com.oviva.epa.client.svc.model.KonnektorContext;
-import com.oviva.epa.client.svc.utils.CertificateUtils;
+import com.oviva.epa.client.internal.svc.model.KonnektorContext;
+import com.oviva.epa.client.internal.svc.utils.CertificateUtils;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.security.cert.X509Certificate;
 import java.util.Collection;

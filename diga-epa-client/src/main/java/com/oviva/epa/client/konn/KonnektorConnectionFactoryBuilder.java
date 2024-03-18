@@ -4,7 +4,7 @@ import com.oviva.epa.client.konn.internal.KonnektorConnectionConfiguration;
 import com.oviva.epa.client.konn.internal.KonnektorConnectionConfiguration.BasicAuthenticationConfig;
 import com.oviva.epa.client.konn.internal.KonnektorConnectionConfiguration.ProxyAddressConfig;
 import com.oviva.epa.client.konn.internal.KonnektorConnectionConfiguration.TlsConfig;
-import com.oviva.epa.client.konn.internal.KonnektorConnectionFactory;
+import com.oviva.epa.client.konn.internal.KonnektorConnectionFactoryImpl;
 import com.oviva.epa.client.konn.internal.util.NaiveTrustManager;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.IOException;
@@ -22,7 +22,7 @@ import javax.net.ssl.TrustManager;
 
 public class KonnektorConnectionFactoryBuilder {
 
-  private static List<String> DEFAULT_TLS_CIPHERSUITES =
+  private static final List<String> DEFAULT_TLS_CIPHERSUITES =
       List.of(
           "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
           "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
@@ -127,6 +127,6 @@ public class KonnektorConnectionFactoryBuilder {
 
     var cfg =
         new KonnektorConnectionConfiguration(uri, tlsConfig, proxyAddress, basicAuthentication);
-    return new KonnektorConnectionFactory(cfg);
+    return new KonnektorConnectionFactoryImpl(cfg);
   }
 }

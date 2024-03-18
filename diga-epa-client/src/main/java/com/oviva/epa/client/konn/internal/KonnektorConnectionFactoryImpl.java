@@ -21,6 +21,7 @@ import static jakarta.xml.ws.soap.SOAPBinding.SOAP12HTTP_BINDING;
 import static jakarta.xml.ws.soap.SOAPBinding.SOAP12HTTP_MTOM_BINDING;
 
 import com.oviva.epa.client.konn.KonnektorConnection;
+import com.oviva.epa.client.konn.KonnektorConnectionFactory;
 import com.oviva.epa.client.konn.internal.interceptors.HomeCommunityBlockOutInterceptor;
 import com.oviva.epa.client.konn.internal.interceptors.MtomConfigOutInterceptor;
 import com.oviva.epa.client.konn.internal.util.XmlUtils;
@@ -66,18 +67,19 @@ import telematik.ws.conn.vsds.vsdservice.wsdl.v5_2.VSDService;
 import telematik.ws.conn.vsds.vsdservice.wsdl.v5_2.VSDServicePortType;
 
 /** Uses Apache CXF to generate client implementations for the Konnektor web services. */
-public class KonnektorConnectionFactory {
+public class KonnektorConnectionFactoryImpl implements KonnektorConnectionFactory {
 
   public static final String HTTPS_PROTOCOL = "https";
   private final LoggingFeature loggingFeature = newLoggingFeature();
   private final KonnektorConnectionConfiguration configuration;
   boolean isTlsPreferred = true;
 
-  public KonnektorConnectionFactory(KonnektorConnectionConfiguration config) {
+  public KonnektorConnectionFactoryImpl(KonnektorConnectionConfiguration config) {
     this.configuration = config;
     this.isTlsPreferred = determineIfTlsPreferred();
   }
 
+  @Override
   public KonnektorConnection connect() {
 
     var connectorServices = sdsApi().getConnectorSds();

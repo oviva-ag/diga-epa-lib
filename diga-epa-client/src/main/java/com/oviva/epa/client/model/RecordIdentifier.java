@@ -1,3 +1,3 @@
-package com.oviva.epa.client.svc.phr.model;
+package com.oviva.epa.client.model;
 
 public record RecordIdentifier(String kvnr, String homeCommunityId) {}

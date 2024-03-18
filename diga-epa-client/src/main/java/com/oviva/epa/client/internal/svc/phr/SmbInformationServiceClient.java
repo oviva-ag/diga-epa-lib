@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.oviva.epa.client.svc.phr;
+package com.oviva.epa.client.internal.svc.phr;
 
-import com.oviva.epa.client.svc.CertificateServiceClient;
-import com.oviva.epa.client.svc.EventServiceClient;
-import com.oviva.epa.client.svc.phr.model.SmbInformation;
+import com.oviva.epa.client.internal.svc.CertificateServiceClient;
+import com.oviva.epa.client.internal.svc.EventServiceClient;
+import com.oviva.epa.client.internal.svc.phr.model.SmbInformation;
 import de.gematik.epa.ihe.model.simple.AuthorInstitution;
 import java.util.List;
 import telematik.ws.conn.cardservice.xsd.v8_1.CardInfoType;

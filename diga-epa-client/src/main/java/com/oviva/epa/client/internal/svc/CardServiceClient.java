@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.oviva.epa.client.svc;
+package com.oviva.epa.client.internal.svc;
 
+import com.oviva.epa.client.internal.svc.model.KonnektorContext;
 import com.oviva.epa.client.konn.internal.util.KonnektorUtils;
-import com.oviva.epa.client.svc.model.KonnektorContext;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.math.BigInteger;
 import org.slf4j.Logger;

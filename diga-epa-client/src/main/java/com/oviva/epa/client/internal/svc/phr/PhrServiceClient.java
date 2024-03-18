@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.oviva.epa.client.svc.phr;
+package com.oviva.epa.client.internal.svc.phr;
 
-import com.oviva.epa.client.svc.model.KonnektorContext;
-import com.oviva.epa.client.svc.phr.model.RecordIdentifier;
+import com.oviva.epa.client.internal.svc.model.KonnektorContext;
+import com.oviva.epa.client.internal.svc.phr.model.RecordIdentifier;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import ihe.iti.xds_b._2007.ProvideAndRegisterDocumentSetRequestType;
 import oasis.names.tc.ebxml_regrep.xsd.rs._3.RegistryResponseType;

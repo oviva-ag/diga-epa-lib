@@ -1,4 +1,4 @@
-package com.oviva.epa.client.svc.model;
+package com.oviva.epa.client.internal.svc.model;
 
 import telematik.ws.conn.connectorcontext.xsd.v2_0.ContextType;
 
