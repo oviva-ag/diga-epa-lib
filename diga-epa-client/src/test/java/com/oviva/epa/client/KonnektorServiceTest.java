@@ -27,7 +27,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -37,13 +36,9 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Disabled
 class KonnektorServiceTest {
-
-  private static final Logger log = LoggerFactory.getLogger(KonnektorServiceTest.class);
 
   // adapt according to what is authorized for your SMC-B testcard,
   // when in doubt ask your provider (e.g. RISE)
@@ -98,12 +93,13 @@ class KonnektorServiceTest {
 
     // these are the TLS client credentials as received from the Konnektor provider (e.g. RISE)
     var keys = loadKeys();
-    var uri = URI.create("https://localhost:4443");
+    var uri = URI.create("https://10.156.145.103:443");
 
     var cf =
         KonnektorConnectionFactoryBuilder.newBuilder()
             .clientKeys(keys)
             .konnektorUri(uri)
+            .proxyServer("127.0.0.1", 3128)
             .trustAllServers() // currently we don't validate the server's certificate
             .build();
 
@@ -144,7 +140,7 @@ class KonnektorServiceTest {
             List.of(ConfidentialityCode.NORMAL.getValue()),
             ClassCode.DURCHFUEHRUNGSPROTOKOLL.getValue(),
             "DiGA MIO-Beispiel eines Dokument von Referenzimplementierung geschickt (Simple Roundtrip)",
-            LocalDateTime.now().minus(3, ChronoUnit.HOURS),
+            LocalDateTime.now().minusHours(3),
             entryUUID,
             List.of(EventCode.PATIENTEN_MITGEBRACHT.getValue()),
             FormatCode.DIGA.getValue(),
@@ -155,8 +151,8 @@ class KonnektorServiceTest {
             "application/fhir+xml",
             PracticeSettingCode.PATIENT_AUSSERHALB_BETREUUNG.getValue(),
             List.of(),
-            LocalDateTime.now().minus(2, ChronoUnit.WEEKS),
-            LocalDateTime.now().minus(1, ChronoUnit.WEEKS),
+            LocalDateTime.now().minusWeeks(2),
+            LocalDateTime.now().minusWeeks(1),
             contents.length,
             "Gesundheitsmonitoring",
             TypeCode.PATIENTENEIGENE_DOKUMENTE.getValue(),
