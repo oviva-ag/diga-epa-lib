@@ -311,10 +311,7 @@ public class KonnektorConnectionFactoryImpl implements KonnektorConnectionFactor
     for (String svsw : serviceVersionStartsWith) {
       var endpoint = readSingleServiceEndpoint(connectorServices, serviceName, svsw);
       if (Objects.nonNull(endpoint)) {
-        // TODO: HACK Patch endpoint to go through the local address
-        var s = endpoint.toString();
-        s = s.replace("10.156.145.103:443", "localhost:4443");
-        return URI.create(s);
+        return endpoint;
       }
     }
 

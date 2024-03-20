@@ -27,7 +27,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -37,17 +36,23 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Disabled
-class KonnektorServiceTest {
-
-  private static final Logger log = LoggerFactory.getLogger(KonnektorServiceTest.class);
+// e2e test to write sample document to our test environment
+class KonnektorServiceAcceptanceTest {
 
   // adapt according to what is authorized for your SMC-B testcard,
   // when in doubt ask your provider (e.g. RISE)
   private static final String KVNR = "X110467329";
+  private static final String TI_KONNEKTOR_URI = "https://10.156.145.103:443";
+  private static final String PROXY_ADDRESS = "127.0.0.1";
+  private static final String KEYSTORE_FILE = "keys/vKon_Client_172.026.002.035.p12";
+  private static final String KEYSTORE_PASSWORD = "0000";
+  private static final String WORKPLACE_ID = "a";
+  private static final String CLIENT_SYSTEM_ID = "c";
+  private static final String MANDANT_ID = "m";
+  private static final String USER_ID = "admin";
+  private static final int PROXY_PORT = 3128;
 
   private KonnektorService konnektorService;
 
@@ -87,7 +92,7 @@ class KonnektorServiceTest {
         konnektorService.getAuthorInstitutions().stream()
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("no SMC-B found"));
-    var document = buildDocumentPayload(KVNR, documentId, authorInstitution, EXPORT_XML.getBytes());
+    var document = buildDocumentPayload(documentId, authorInstitution, EXPORT_XML.getBytes());
 
     // 3) write the FHIR/MIO document
     assertDoesNotThrow(() -> konnektorService.writeDocument(recordIdentifier, document));
@@ -98,12 +103,13 @@ class KonnektorServiceTest {
 
     // these are the TLS client credentials as received from the Konnektor provider (e.g. RISE)
     var keys = loadKeys();
-    var uri = URI.create("https://localhost:4443");
+    var uri = URI.create(TI_KONNEKTOR_URI);
 
     var cf =
         KonnektorConnectionFactoryBuilder.newBuilder()
             .clientKeys(keys)
             .konnektorUri(uri)
+            .proxyServer(PROXY_ADDRESS, PROXY_PORT)
             .trustAllServers() // currently we don't validate the server's certificate
             .build();
 
@@ -111,15 +117,15 @@ class KonnektorServiceTest {
 
     return KonnektorServiceBuilder.newBuilder()
         .connection(conn)
-        .workplaceId("a")
-        .clientSystemId("c")
-        .mandantId("m")
-        .userId("admin")
+        .workplaceId(WORKPLACE_ID)
+        .clientSystemId(CLIENT_SYSTEM_ID)
+        .mandantId(MANDANT_ID)
+        .userId(USER_ID)
         .build();
   }
 
   private Document buildDocumentPayload(
-      String kvnr, String id, AuthorInstitution authorInstitution, byte[] contents) {
+      String id, AuthorInstitution authorInstitution, byte[] contents) {
     var entryUUID = UUID.randomUUID().toString();
     var repositoryUniqueId = UUID.randomUUID().toString();
 
@@ -144,7 +150,7 @@ class KonnektorServiceTest {
             List.of(ConfidentialityCode.NORMAL.getValue()),
             ClassCode.DURCHFUEHRUNGSPROTOKOLL.getValue(),
             "DiGA MIO-Beispiel eines Dokument von Referenzimplementierung geschickt (Simple Roundtrip)",
-            LocalDateTime.now().minus(3, ChronoUnit.HOURS),
+            LocalDateTime.now().minusHours(3),
             entryUUID,
             List.of(EventCode.PATIENTEN_MITGEBRACHT.getValue()),
             FormatCode.DIGA.getValue(),
@@ -155,8 +161,8 @@ class KonnektorServiceTest {
             "application/fhir+xml",
             PracticeSettingCode.PATIENT_AUSSERHALB_BETREUUNG.getValue(),
             List.of(),
-            LocalDateTime.now().minus(2, ChronoUnit.WEEKS),
-            LocalDateTime.now().minus(1, ChronoUnit.WEEKS),
+            LocalDateTime.now().minusWeeks(2),
+            LocalDateTime.now().minusWeeks(1),
             contents.length,
             "Gesundheitsmonitoring",
             TypeCode.PATIENTENEIGENE_DOKUMENTE.getValue(),
@@ -164,31 +170,27 @@ class KonnektorServiceTest {
             "monitoring.xml",
             repositoryUniqueId,
             "",
-            kvnr),
+            KVNR),
         null);
   }
 
   private List<KeyManager> loadKeys() throws Exception {
-
-    var password = "0000";
-    var keyFile = "keys/vKon_Client_172.026.002.035.p12";
-
-    var ks = loadKeyStore(keyFile, password);
+    var ks = loadKeyStore();
 
     final KeyManagerFactory keyFactory =
         KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-    keyFactory.init(ks, password.toCharArray());
+    keyFactory.init(ks, KEYSTORE_PASSWORD.toCharArray());
     return Arrays.asList(keyFactory.getKeyManagers());
   }
 
-  private KeyStore loadKeyStore(String path, String password)
+  private KeyStore loadKeyStore()
       throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
 
-    var is = IOUtils.resourceToURL(path, this.getClass().getClassLoader()).openStream();
+    var is = IOUtils.resourceToURL(KEYSTORE_FILE, this.getClass().getClassLoader()).openStream();
 
     var keyStore = KeyStore.getInstance("PKCS12");
 
-    keyStore.load(is, password.toCharArray());
+    keyStore.load(is, KEYSTORE_PASSWORD.toCharArray());
 
     return keyStore;
   }
