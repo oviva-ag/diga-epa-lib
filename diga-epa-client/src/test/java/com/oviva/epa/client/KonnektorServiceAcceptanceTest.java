@@ -52,6 +52,7 @@ class KonnektorServiceAcceptanceTest {
   private static final String CLIENT_SYSTEM_ID = "c";
   private static final String MANDANT_ID = "m";
   private static final String USER_ID = "admin";
+  private static final int PROXY_PORT = 3128;
 
   private KonnektorService konnektorService;
 
@@ -108,7 +109,7 @@ class KonnektorServiceAcceptanceTest {
         KonnektorConnectionFactoryBuilder.newBuilder()
             .clientKeys(keys)
             .konnektorUri(uri)
-            .proxyServer(PROXY_ADDRESS, 3128)
+            .proxyServer(PROXY_ADDRESS, PROXY_PORT)
             .trustAllServers() // currently we don't validate the server's certificate
             .build();
 
