@@ -1,5 +1,6 @@
 package com.oviva.epa.client;
 
+import com.oviva.epa.client.internal.ExceptionMappedKonnektorService;
 import com.oviva.epa.client.internal.KonnektorServiceImpl;
 import com.oviva.epa.client.internal.svc.model.KonnektorContext;
 import com.oviva.epa.client.konn.KonnektorConnection;
@@ -62,6 +63,7 @@ public class KonnektorServiceBuilder {
     }
 
     var ctx = new KonnektorContext(mandantId, clientSystemId, workplaceId, userId);
-    return new KonnektorServiceImpl(connection, ctx);
+    var svc = new KonnektorServiceImpl(connection, ctx);
+    return new ExceptionMappedKonnektorService(svc);
   }
 }

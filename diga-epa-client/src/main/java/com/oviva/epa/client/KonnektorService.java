@@ -6,16 +6,30 @@ import com.oviva.epa.client.model.RecordIdentifier;
 import com.oviva.epa.client.model.WriteDocumentResponse;
 import de.gematik.epa.ihe.model.document.Document;
 import de.gematik.epa.ihe.model.simple.AuthorInstitution;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.List;
+import java.util.UUID;
 
 public interface KonnektorService {
+  @NonNull
   List<AuthorInstitution> getAuthorInstitutions();
 
+  @NonNull
   List<Card> getCardsInfo();
 
-  PinStatus verifySmcPin(String cardHandle);
+  @NonNull
+  PinStatus verifySmcPin(@NonNull String cardHandle);
 
-  WriteDocumentResponse writeDocument(RecordIdentifier recordIdentifier, Document document);
+  @NonNull
+  WriteDocumentResponse writeDocument(
+      @NonNull RecordIdentifier recordIdentifier, @NonNull Document document);
 
-  String getHomeCommunityID(String kvnr);
+  @NonNull
+  WriteDocumentResponse replaceDocument(
+      @NonNull RecordIdentifier recordIdentifier,
+      @NonNull Document document,
+      @NonNull UUID documentToReplaceId);
+
+  @NonNull
+  String getHomeCommunityID(@NonNull String kvnr);
 }
