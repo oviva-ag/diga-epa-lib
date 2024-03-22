@@ -79,7 +79,7 @@ class KonnektorServiceAcceptanceTest {
   @Test
   void writeDocument() {
 
-    String documentId = UUID.randomUUID().toString();
+    var documentId = UUID.randomUUID();
 
     // when
 
@@ -96,6 +96,35 @@ class KonnektorServiceAcceptanceTest {
 
     // 3) write the FHIR/MIO document
     assertDoesNotThrow(() -> konnektorService.writeDocument(recordIdentifier, document));
+  }
+
+  @Test
+  void replaceDocument() {
+
+    var documentId = UUID.randomUUID();
+
+    // when
+
+    // 1) get home community
+    var hcid = konnektorService.getHomeCommunityID(KVNR);
+    var recordIdentifier = new RecordIdentifier(KVNR, hcid);
+
+    // 2) read author/telematik ID from SMC-B
+    var authorInstitution =
+        konnektorService.getAuthorInstitutions().stream()
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("no SMC-B found"));
+
+    var document = buildDocumentPayload(documentId, authorInstitution, EXPORT_XML.getBytes());
+
+    // 3) write the FHIR/MIO document
+    assertDoesNotThrow(() -> konnektorService.writeDocument(recordIdentifier, document));
+
+    // 4) replace the document
+    var newDocumentId = UUID.randomUUID();
+    var newDocument = buildDocumentPayload(newDocumentId, authorInstitution, EXPORT_XML.getBytes());
+    assertDoesNotThrow(
+        () -> konnektorService.replaceDocument(recordIdentifier, newDocument, documentId));
   }
 
   /** establish a connection to the TI Konnektor */
@@ -125,9 +154,11 @@ class KonnektorServiceAcceptanceTest {
   }
 
   private Document buildDocumentPayload(
-      String id, AuthorInstitution authorInstitution, byte[] contents) {
-    var entryUUID = UUID.randomUUID().toString();
+      UUID id, AuthorInstitution authorInstitution, byte[] contents) {
     var repositoryUniqueId = UUID.randomUUID().toString();
+
+    // IMPORTANT: Without the urn prefix we can't replace it later
+    var documentUuid = "urn:uuid:" + id;
 
     return new Document(
         contents,
@@ -151,7 +182,7 @@ class KonnektorServiceAcceptanceTest {
             ClassCode.DURCHFUEHRUNGSPROTOKOLL.getValue(),
             "DiGA MIO-Beispiel eines Dokument von Referenzimplementierung geschickt (Simple Roundtrip)",
             LocalDateTime.now().minusHours(3),
-            entryUUID,
+            documentUuid,
             List.of(EventCode.PATIENTEN_MITGEBRACHT.getValue()),
             FormatCode.DIGA.getValue(),
             "",
@@ -166,7 +197,7 @@ class KonnektorServiceAcceptanceTest {
             contents.length,
             "Gesundheitsmonitoring",
             TypeCode.PATIENTENEIGENE_DOKUMENTE.getValue(),
-            id,
+            documentUuid,
             "monitoring.xml",
             repositoryUniqueId,
             "",
