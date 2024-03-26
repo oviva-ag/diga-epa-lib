@@ -14,7 +14,7 @@ DiGA treatments into the electronic health record (ePA).
 **NOTE:** All of the above you can get from e.g. [RISE](https://rise-konnektor.de/)
 
 ## Overview Integration
-See [KonnektorServiceTest](./diga-epa-client/src/test/java/com/oviva/epa/client/KonnektorServiceTest.java#L79).
+See [KonnektorServiceAcceptanceTest](./diga-epa-client/src/test/java/com/oviva/epa/client/KonnektorServiceAcceptanceTest.java).
 ```mermaid
 sequenceDiagram
    participant app as diga-epa-lib
@@ -48,7 +48,7 @@ sequenceDiagram
      <version>${version}</version>
    </dependency>
    ```
-3. See [KonnektorServiceTest](./diga-epa-client/src/test/java/com/oviva/epa/client/KonnektorServiceTest.java#L79) on how to initialise the client.
+3. See [KonnektorServiceAcceptanceTest](./diga-epa-client/src/test/java/com/oviva/epa/client/KonnektorServiceAcceptanceTest.java) on how to initialise the client.
    
 
 ## Developing the Library
@@ -56,7 +56,7 @@ sequenceDiagram
     ```shell
     cp vKon_Client_*.p12 ./diga-epa-client/src/main/resources/keys
     ```
-2. Run the tests in the [KonnektorServiceTest](diga-epa-client/src/test/java/com/oviva/epa/client/KonnektorServiceTest.java) class
+2. Run the tests in the [KonnektorServiceAcceptanceTest](./diga-epa-client/src/test/java/com/oviva/epa/client/KonnektorServiceAcceptanceTest.java) class
    * You should be able to write an example file in the test environment (RU).
 
 ## Normative Documents
@@ -73,6 +73,4 @@ sequenceDiagram
 - [RISE Konnektor](https://rise-konnektor.de/)
 
 ## Wishlist
-- remove the endpoint re-mapping hacks in the [KonnektorConnectionFactory](https://github.com/oviva-ag/diga-epa-lib/blob/main/diga-epa-client/src/main/java/com/oviva/poc/konn/KonnektorConnectionFactory.java#L334)
 - `health` check on `KonnektorConnection`
-- bonus: automatically monitor and re-connect the card-terminal and pin verification when necessary
