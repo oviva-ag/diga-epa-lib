@@ -38,6 +38,19 @@ public class ExceptionMappedKonnektorService implements KonnektorService {
     return wrap(() -> delegate.verifySmcPin(cardHandle));
   }
 
+  @NonNull
+  @Override
+  public List<AuthorizedApplication> getAuthorizationState(
+      @NonNull RecordIdentifier recordIdentifier) {
+    return wrap(() -> delegate.getAuthorizationState(recordIdentifier));
+  }
+
+  @NonNull
+  @Override
+  public List<AuthorizationEntry> getAuthorizationList() {
+    return wrap(delegate::getAuthorizationList);
+  }
+
   @Override
   public @NonNull WriteDocumentResponse writeDocument(
       @NonNull RecordIdentifier recordIdentifier, @NonNull Document document) {

@@ -2,9 +2,9 @@ package com.oviva.epa.client.internal.svc.phr;
 
 import com.oviva.epa.client.internal.svc.model.KonnektorContext;
 import com.oviva.epa.client.internal.svc.phr.model.RecordIdentifier;
+import com.oviva.epa.client.internal.svc.utils.Models;
 import telematik.ws.conn.connectorcontext.xsd.v2_0.ContextType;
 import telematik.ws.conn.phrs.phrservice.xsd.v2_0.ContextHeader;
-import telematik.ws.fd.phr.phrcommon.xsd.v1_1.InsurantIdType;
 import telematik.ws.fd.phr.phrcommon.xsd.v1_1.RecordIdentifierType;
 
 public class ContextHeaderBuilder {
@@ -18,10 +18,6 @@ public class ContextHeaderBuilder {
 
   public static ContextHeaderBuilder fromKonnektorContext(KonnektorContext ctx) {
     return new ContextHeaderBuilder(ctx);
-  }
-
-  private static InsurantIdType fromKvnr(String kvnr) {
-    return new InsurantIdType().withExtension(kvnr).withRoot(new InsurantIdType().getRoot());
   }
 
   private static ContextType buildKonnektorContext(KonnektorContext ctx) {
@@ -52,7 +48,7 @@ public class ContextHeaderBuilder {
 
   RecordIdentifierType buildRecordIdentifier(RecordIdentifier ctx) {
     return new RecordIdentifierType()
-        .withInsurantId(fromKvnr(ctx.kvnr()))
+        .withInsurantId(Models.fromKvnr(ctx.kvnr()))
         .withHomeCommunityId(ctx.homeCommunityId());
   }
 }

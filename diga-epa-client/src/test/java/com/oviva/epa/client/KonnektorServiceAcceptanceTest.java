@@ -77,6 +77,30 @@ class KonnektorServiceAcceptanceTest {
   }
 
   @Test
+  void getAuthorizationList() {
+
+    // IMPORTANT: This is strictly rate-limited to once a day!
+    var authorizations = konnektorService.getAuthorizationList();
+
+    // check whether our test KVNR is among them
+    assertTrue(authorizations.stream().anyMatch(a -> a.recordIdentifier().kvnr().equals(KVNR)));
+  }
+
+  @Test
+  void getAuthorizationState() {
+
+    // 1) get home community
+    var hcid = konnektorService.getHomeCommunityID(KVNR);
+    var recordIdentifier = new RecordIdentifier(KVNR, hcid);
+
+    // 2) get the authorization state
+    var authorizedApplications = konnektorService.getAuthorizationState(recordIdentifier);
+
+    // 3) check whether we're authorized for the ePA
+    assertTrue(authorizedApplications.stream().anyMatch(a -> "ePA".equals(a.name())));
+  }
+
+  @Test
   void writeDocument() {
 
     var documentId = UUID.randomUUID();

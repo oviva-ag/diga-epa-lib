@@ -21,16 +21,25 @@ import de.gematik.epa.ihe.model.simple.AuthorInstitution;
 import de.gematik.epa.ihe.model.simple.SubmissionSetMetadata;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import javax.xml.datatype.XMLGregorianCalendar;
 import oasis.names.tc.ebxml_regrep.xsd.rs._3.RegistryErrorList;
 import oasis.names.tc.ebxml_regrep.xsd.rs._3.RegistryResponseType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import telematik.ws.conn.cardservicecommon.xsd.v2_0.CardTypeType;
+import telematik.ws.conn.connectorcommon.xsd.v5_0.ResultEnum;
+import telematik.ws.conn.connectorcommon.xsd.v5_0.Status;
 import telematik.ws.conn.exception.FaultMessageException;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetAuthorizationListResponse;
+import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetAuthorizationStateResponse;
 
 public class KonnektorServiceImpl implements KonnektorService {
 
-  private static final String STATUS_SUCCESS =
+  private static Logger log = LoggerFactory.getLogger(KonnektorServiceImpl.class);
+  private static final String REGISTRY_STATUS_SUCCESS =
       "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Success";
   private final EventServiceClient eventServiceClient;
   private final CardServiceClient cardServiceClient;
@@ -67,7 +76,6 @@ public class KonnektorServiceImpl implements KonnektorService {
   @NonNull
   @Override
   public List<Card> getCardsInfo() {
-    // don't be fooled by the name, this returns a list of cards...
     return eventServiceClient.getSmbInfo().getCards().getCard().stream()
         .map(c -> new Card(c.getCardHandle(), c.getCardHolderName(), mapCardType(c.getCardType())))
         .toList();
@@ -85,6 +93,78 @@ public class KonnektorServiceImpl implements KonnektorService {
   public @NonNull PinStatus verifySmcPin(@NonNull String cardHandle) {
     var response = cardServiceClient.getPinStatusResponse(cardHandle, "PIN.SMC");
     return PinStatus.valueOf(response.getPinStatus().name());
+  }
+
+  @Override
+  @NonNull
+  public List<AuthorizedApplication> getAuthorizationState(
+      @NonNull RecordIdentifier recordIdentifier) {
+
+    var res =
+        phrManagementServiceClient.getAuthorizationState(
+            recordIdentifier.kvnr(), recordIdentifier.homeCommunityId());
+    validateAuthorizationStateResponse(res);
+
+    return res.getAuthorizationStatusList().getAuthorizedApplication().stream()
+        .map(e -> new AuthorizedApplication(e.getApplicationName(), parseDate(e.getValidTo())))
+        .toList();
+  }
+
+  private void validateAuthorizationStateResponse(GetAuthorizationStateResponse res) {
+    var result = parseResult(res.getStatus());
+    if (ResultEnum.OK.equals(result)) {
+      return;
+    }
+
+    if (ResultEnum.WARNING.equals(result)) {
+      log.atDebug().addKeyValue("response", res::toString).log("warning response from Konnektor");
+      return;
+    }
+
+    throw new KonnektorException(
+        "bad GetAuthorizationStateResponse: " + res.getStatus().toString());
+  }
+
+  @Override
+  @NonNull
+  public List<AuthorizationEntry> getAuthorizationList() {
+    var res = phrManagementServiceClient.getAuthorizationList();
+
+    validateAuthorizationListResponse(res);
+
+    return res.getAuthorizationList().getAuthorizationEntry().stream()
+        .map(
+            e ->
+                new AuthorizationEntry(
+                    new RecordIdentifier(
+                        e.getRecordIdentifier().getInsurantId().getExtension(),
+                        e.getRecordIdentifier().getHomeCommunityId()),
+                    parseDate(e.getValidTo())))
+        .toList();
+  }
+
+  private LocalDate parseDate(XMLGregorianCalendar encoded) {
+    return LocalDate.of(encoded.getYear(), encoded.getMonth(), encoded.getDay());
+  }
+
+  private void validateAuthorizationListResponse(GetAuthorizationListResponse res) {
+    var result = parseResult(res.getStatus());
+    if (ResultEnum.OK.equals(result)) {
+      return;
+    }
+
+    throw new KonnektorException("bad GetAuthorizationListResponse: " + res.getStatus().toString());
+  }
+
+  private ResultEnum parseResult(Status status) {
+    var str = status.getResult().toUpperCase(Locale.ROOT);
+    try {
+      // upper case before parsing, the Result allows 'Warning' while the enum does not
+      return ResultEnum.valueOf(str);
+    } catch (IllegalArgumentException e) {
+      // let's not fail on an unknown enum, response might still be useful
+      return ResultEnum.WARNING;
+    }
   }
 
   @Override
@@ -146,7 +226,7 @@ public class KonnektorServiceImpl implements KonnektorService {
 
   private void validateResponse(RegistryResponseType res) {
 
-    if (STATUS_SUCCESS.equals(res.getStatus())) {
+    if (REGISTRY_STATUS_SUCCESS.equals(res.getStatus())) {
       return;
     }
     var errors =
