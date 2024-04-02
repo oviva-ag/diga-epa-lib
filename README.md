@@ -60,6 +60,7 @@ sequenceDiagram
    * You should be able to write an example file in the test environment (RU).
 
 ## Normative Documents
+- [Specifications ePA - 'Aktensystem ePA für alle'](https://gemspec.gematik.de/docs/gemSpec/gemSpec_Aktensystem_ePAfueralle/latest/)
 - [DiGA Leitfaden, 3.5 Interoperabilität](https://www.bfarm.de/SharedDocs/Downloads/DE/Medizinprodukte/diga_leitfaden.html)
 - [DiGA Anwendungssteckbrief](https://gemspec.gematik.de/docs/gemAnw/gemAnw_DiGA/latest/)
 - [gematik/api-telematik](https://github.com/gematik/api-telematik/tree/OPB5)

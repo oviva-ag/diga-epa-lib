@@ -44,6 +44,12 @@ class KonnektorServiceAcceptanceTest {
   // adapt according to what is authorized for your SMC-B testcard,
   // when in doubt ask your provider (e.g. RISE)
   private static final String KVNR = "X110467329";
+
+  private static final String FAKE_KVNR = "A123456780";
+
+  // A_22470-05
+  // https://gemspec.gematik.de/docs/gemSpec/gemSpec_Aktensystem_ePAfueralle/latest/#2.7
+  private static final String USER_AGENT = "TEST/0.0.1";
   private static final String TI_KONNEKTOR_URI = "https://10.156.145.103:443";
   private static final String PROXY_ADDRESS = "127.0.0.1";
   private static final String KEYSTORE_FILE = "keys/vKon_Client_172.026.002.035.p12";
@@ -74,6 +80,46 @@ class KonnektorServiceAcceptanceTest {
 
     // if the status is VERIFIABLE, it means the PIN must be reinserted again
     assertThat(pinStatus, equalTo(PinStatus.VERIFIED));
+  }
+
+  @Test
+  void getAuthorizationList() {
+
+    // IMPORTANT: This is strictly rate-limited to once a day!
+    var authorizations = konnektorService.getAuthorizationList();
+
+    // check whether our test KVNR is among them
+    assertTrue(authorizations.stream().anyMatch(a -> a.recordIdentifier().kvnr().equals(KVNR)));
+  }
+
+  @Test
+  void getAuthorizationState() {
+
+    // 1) get home community
+    var hcid = konnektorService.getHomeCommunityID(KVNR);
+    var recordIdentifier = new RecordIdentifier(KVNR, hcid);
+
+    // 2) get the authorization state
+    var authorizedApplications = konnektorService.getAuthorizationState(recordIdentifier);
+
+    // 3) check whether we're authorized for the ePA
+    assertTrue(authorizedApplications.stream().anyMatch(a -> "ePA".equals(a.name())));
+  }
+
+  @Test
+  void getAuthorizationState_notAuthorized() {
+
+    // 1) get some valid home community
+    var hcid = konnektorService.getHomeCommunityID(KVNR);
+
+    // 2) create a record identifier we don't have access to
+    var recordIdentifier = new RecordIdentifier(FAKE_KVNR, hcid);
+
+    // 3) get the authorization state
+    var authorizedApplications = konnektorService.getAuthorizationState(recordIdentifier);
+
+    // 4) check whether we're authorized for the ePA
+    assertTrue(authorizedApplications.isEmpty());
   }
 
   @Test
@@ -150,6 +196,7 @@ class KonnektorServiceAcceptanceTest {
         .clientSystemId(CLIENT_SYSTEM_ID)
         .mandantId(MANDANT_ID)
         .userId(USER_ID)
+        .userAgent(USER_AGENT)
         .build();
   }
 
