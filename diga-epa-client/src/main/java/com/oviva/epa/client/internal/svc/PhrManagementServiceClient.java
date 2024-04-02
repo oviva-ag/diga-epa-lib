@@ -13,10 +13,22 @@ public class PhrManagementServiceClient {
   private final PHRManagementServicePortType phrManagementService;
   private final KonnektorContext konnektorContext;
 
+  private final String userAgent;
+
+  /**
+   * @param phrManagementService
+   * @param konnektorContext
+   * @param userAgent <a
+   *     href="https://gemspec.gematik.de/docs/gemSpec/gemSpec_Aktensystem_ePAfueralle/latest/#2.7">A_22470-04
+   *     - Definition Useragent</a>
+   */
   public PhrManagementServiceClient(
-      PHRManagementServicePortType phrManagementService, KonnektorContext konnektorContext) {
+      PHRManagementServicePortType phrManagementService,
+      KonnektorContext konnektorContext,
+      String userAgent) {
     this.phrManagementService = phrManagementService;
     this.konnektorContext = konnektorContext;
+    this.userAgent = userAgent;
   }
 
   public GetAuthorizationStateResponse getAuthorizationState(String knvr, String homeCommunityId) {

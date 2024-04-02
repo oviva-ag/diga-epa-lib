@@ -41,6 +41,7 @@ public class KonnektorServiceImpl implements KonnektorService {
   private static Logger log = LoggerFactory.getLogger(KonnektorServiceImpl.class);
   private static final String REGISTRY_STATUS_SUCCESS =
       "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Success";
+  private final String userAgent; // A_22470-05
   private final EventServiceClient eventServiceClient;
   private final CardServiceClient cardServiceClient;
   private final PhrManagementServiceClient phrManagementServiceClient;
@@ -48,7 +49,9 @@ public class KonnektorServiceImpl implements KonnektorService {
 
   private final SmbInformationServiceClient smbInformationServiceClient;
 
-  public KonnektorServiceImpl(KonnektorConnection connection, KonnektorContext konnektorContext) {
+  public KonnektorServiceImpl(
+      String userAgent, KonnektorConnection connection, KonnektorContext konnektorContext) {
+    this.userAgent = userAgent;
 
     eventServiceClient = new EventServiceClient(connection.eventService(), konnektorContext);
 
@@ -58,7 +61,8 @@ public class KonnektorServiceImpl implements KonnektorService {
     phrServiceClient = new PhrServiceClient(connection.phrService(), konnektorContext);
 
     phrManagementServiceClient =
-        new PhrManagementServiceClient(connection.phrManagementService(), konnektorContext);
+        new PhrManagementServiceClient(
+            connection.phrManagementService(), konnektorContext, userAgent);
 
     var certificateServiceClient =
         new CertificateServiceClient(connection.certificateService(), konnektorContext);

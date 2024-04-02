@@ -46,6 +46,10 @@ class KonnektorServiceAcceptanceTest {
   private static final String KVNR = "X110467329";
 
   private static final String FAKE_KVNR = "A123456780";
+
+  // A_22470-05
+  // https://gemspec.gematik.de/docs/gemSpec/gemSpec_Aktensystem_ePAfueralle/latest/#2.7
+  private static final String USER_AGENT = "TEST/0.0.1";
   private static final String TI_KONNEKTOR_URI = "https://10.156.145.103:443";
   private static final String PROXY_ADDRESS = "127.0.0.1";
   private static final String KEYSTORE_FILE = "keys/vKon_Client_172.026.002.035.p12";
@@ -192,6 +196,7 @@ class KonnektorServiceAcceptanceTest {
         .clientSystemId(CLIENT_SYSTEM_ID)
         .mandantId(MANDANT_ID)
         .userId(USER_ID)
+        .userAgent(USER_AGENT)
         .build();
   }
 
