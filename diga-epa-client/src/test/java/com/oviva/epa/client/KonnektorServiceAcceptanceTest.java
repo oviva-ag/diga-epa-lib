@@ -214,10 +214,10 @@ class KonnektorServiceAcceptanceTest {
                 new Author(
                     authorInstitution.identifier(),
                     "Oviva Direkt for Obesity",
-                    "Oviva AG",
+                    "Oviva",
                     "",
                     "",
-                    "",
+                    "AG",
                     // Der identifier in AuthorInstitution muss eine gültige TelematikId sein, so
                     // wie sie z. B. auf der SMC-B-Karte enthalten ist
                     List.of(authorInstitution),
