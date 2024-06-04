@@ -222,8 +222,7 @@ class KonnektorServiceAcceptanceTest {
                     // wie sie z. B. auf der SMC-B-Karte enthalten ist
                     List.of(authorInstitution),
                     List.of("12^^^&amp;1.3.6.1.4.1.19376.3.276.1.5.13&amp;ISO"),
-                    //                    List.of("25^^^&amp;1.2.276.0.76.5.114&amp;ISO"),
-                    List.of(),
+                    List.of("25^^^&1.3.6.1.4.1.19376.3.276.1.5.11&ISO"),
                     List.of("^^Internet^telematik-infrastructure@oviva.com"))),
             "AVAILABLE",
             List.of(ConfidentialityCode.NORMAL.getValue()),
