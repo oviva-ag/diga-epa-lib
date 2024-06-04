@@ -138,7 +138,7 @@ class KonnektorServiceAcceptanceTest {
         konnektorService.getAuthorInstitutions().stream()
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("no SMC-B found"));
-    var document = buildDocumentPayload(documentId, authorInstitution, EXPORT_XML.getBytes());
+    var document = buildDocumentPayload(documentId, authorInstitution, hcid, EXPORT_XML.getBytes());
 
     // 3) write the FHIR/MIO document
     assertDoesNotThrow(() -> konnektorService.writeDocument(recordIdentifier, document));
@@ -161,14 +161,15 @@ class KonnektorServiceAcceptanceTest {
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("no SMC-B found"));
 
-    var document = buildDocumentPayload(documentId, authorInstitution, EXPORT_XML.getBytes());
+    var document = buildDocumentPayload(documentId, authorInstitution, hcid, EXPORT_XML.getBytes());
 
     // 3) write the FHIR/MIO document
     assertDoesNotThrow(() -> konnektorService.writeDocument(recordIdentifier, document));
 
     // 4) replace the document
     var newDocumentId = UUID.randomUUID();
-    var newDocument = buildDocumentPayload(newDocumentId, authorInstitution, EXPORT_XML.getBytes());
+    var newDocument =
+        buildDocumentPayload(newDocumentId, authorInstitution, hcid, EXPORT_XML.getBytes());
     assertDoesNotThrow(
         () -> konnektorService.replaceDocument(recordIdentifier, newDocument, documentId));
   }
@@ -201,8 +202,9 @@ class KonnektorServiceAcceptanceTest {
   }
 
   private Document buildDocumentPayload(
-      UUID id, AuthorInstitution authorInstitution, byte[] contents) {
-    var repositoryUniqueId = UUID.randomUUID().toString();
+      UUID id, AuthorInstitution authorInstitution, String homeCommunityId, byte[] contents) {
+    var repositoryUniqueId = homeCommunityId;
+    var currentDate = LocalDateTime.now().toString();
 
     // IMPORTANT: Without the urn prefix we can't replace it later
     var documentUuid = "urn:uuid:" + id;
@@ -243,10 +245,10 @@ class KonnektorServiceAcceptanceTest {
             null,
             null,
             contents.length,
-            "ePA Export Oviva Direkt for Obesity" + LocalDateTime.now(),
+            "ePA Export Oviva Direkt for Obesity" + currentDate,
             TypeCode.PATIENTENEIGENE_DOKUMENTE.getValue(),
             documentUuid,
-            "monitoring.xml",
+            "Oviva_DiGA_Export_" + currentDate,
             repositoryUniqueId,
             "",
             KVNR),
