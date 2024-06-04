@@ -212,18 +212,19 @@ class KonnektorServiceAcceptanceTest {
         new DocumentMetadata(
             List.of(
                 new Author(
-                    authorInstitution.identifier(),
+                    null,
                     "Oviva Direkt for Obesity",
                     "Oviva",
                     "",
                     "",
-                    "AG",
+                    "",
                     // Der identifier in AuthorInstitution muss eine gültige TelematikId sein, so
                     // wie sie z. B. auf der SMC-B-Karte enthalten ist
                     List.of(authorInstitution),
                     List.of("12^^^&amp;1.3.6.1.4.1.19376.3.276.1.5.13&amp;ISO"),
-                    List.of("Diätassistent (25)"),
-                    List.of("telematik-infrastructure@oviva.com"))),
+                    //                    List.of("25^^^&amp;1.2.276.0.76.5.114&amp;ISO"),
+                    List.of(),
+                    List.of("^^Internet^telematik-infrastructure@oviva.com"))),
             "AVAILABLE",
             List.of(ConfidentialityCode.NORMAL.getValue()),
             ClassCode.DURCHFUEHRUNGSPROTOKOLL.getValue(),
@@ -244,7 +245,7 @@ class KonnektorServiceAcceptanceTest {
             null,
             contents.length,
             "ePA Export Oviva Direkt for Obesity" + LocalDateTime.now(),
-            TypeCode.THERAPIEDOKUMENTATION.getValue(),
+            TypeCode.PATIENTENEIGENE_DOKUMENTE.getValue(),
             documentUuid,
             "monitoring.xml",
             repositoryUniqueId,
