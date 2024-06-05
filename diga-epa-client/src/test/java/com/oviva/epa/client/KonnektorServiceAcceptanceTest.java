@@ -215,8 +215,8 @@ class KonnektorServiceAcceptanceTest {
             List.of(
                 new Author(
                     null,
-                    "Oviva Direkt for Obesity",
-                    "Oviva",
+                    "Oviva Direkt für Adipositas",
+                    "Oviva AG",
                     "",
                     "",
                     "",
