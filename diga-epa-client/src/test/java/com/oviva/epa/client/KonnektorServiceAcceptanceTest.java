@@ -245,7 +245,7 @@ class KonnektorServiceAcceptanceTest {
             null,
             null,
             contents.length,
-            "ePA Export Oviva Direkt for Obesity" + currentDate,
+            "ePA Export Oviva Direkt for Obesity " + currentDate,
             TypeCode.PATIENTENEIGENE_DOKUMENTE.getValue(),
             documentUuid,
             "Oviva_DiGA_Export_" + currentDate,
