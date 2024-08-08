@@ -1,3 +1,5 @@
+![Maven Central Version](https://img.shields.io/maven-central/v/com.oviva.epa/diga-epa-lib)
+
 # Electronic Health Record (ePA) Library for DiGA Use Cases
 
 This library interacts with the Telematik-Infrastuktur (TI) via a Konnektor to write structured HL7/FHIR bundles for
