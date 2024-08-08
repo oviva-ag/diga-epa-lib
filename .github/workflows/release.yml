@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - 'diga-epa-lib/v[0-9]+.[0-9]+.[0-9]+-[a-z]+.[0-9]+'
+      - 'diga-epa-lib/v[0-9]+.[0-9]+.[0-9]+'
 jobs:
   release:
     env:
@@ -14,6 +15,9 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          server-id: central
+          server-username: MAVEN_CENTRAL_USERNAME
+          server-password: MAVEN_CENTRAL_PASSWORD
           cache: 'maven'
       - name: Get version
         id: version
@@ -24,15 +28,16 @@ jobs:
           echo "version: '$VERSION'"
 
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "ARTIFACT_ID=$NAMESPACE" >> $GITHUB_ENV
       - name: Update Version
         run: |
           echo "updating version to '$VERSION'"
           mvn -B versions:set "-DnewVersion=$VERSION"
       - name: Publish package
-        run: mvn --batch-mode deploy
+        run: |
+          echo -n "$MAVEN_GPG_KEY" | gpg --import --batch
+          mvn --batch-mode -Prelease deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    permissions:
-      contents: read
-      packages: write
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_TR_PASSPHRASE }}
+          MAVEN_GPG_KEY: ${{ secrets.MAVEN_GPG_TR_KEY }}
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.oviva.epa</groupId>
@@ -10,12 +8,10 @@
   </parent>
 
   <artifactId>epa-fm-api</artifactId>
-  <description>
-    Contains Java classes generated from the WSDL description
+  <description>Contains Java classes generated from the WSDL description
     of the interfaces of ePA-FM in the Konnektor.
 
-    Specifications see also: https://gemspec.gematik.de/docs/gemSpec/gemSpec_FM_ePA/latest/
-  </description>
+    Specifications see also: https://gemspec.gematik.de/docs/gemSpec/gemSpec_FM_ePA/latest/</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -32,7 +28,6 @@
     <dependency>
       <groupId>jakarta.xml.bind</groupId>
       <artifactId>jakarta.xml.bind-api</artifactId>
-      <version>4.0.0</version>
     </dependency>
     <dependency>
       <groupId>jakarta.ws.rs</groupId>
@@ -61,13 +56,45 @@
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-codegen-plugin</artifactId>
         <version>${apache-cxf.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.cxf.xjcplugins</groupId>
+            <artifactId>cxf-xjc-ts</artifactId>
+            <version>${cxf-xjc.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-fluent-api</artifactId>
+            <version>${jaxb.fluent.api.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics</artifactId>
+            <version>0.13.1</version>
+          </dependency>
+          <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${xml.bind.jaxb.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>${xml.bind.jaxb.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <id>wsdl2java-plus</id>
-            <phase>generate-sources</phase>
             <goals>
               <goal>wsdl2java</goal>
             </goals>
+            <phase>generate-sources</phase>
             <configuration>
               <additionalJvmArgs>-Djavax.xml.accessExternalDTD=file</additionalJvmArgs>
               <sourceRoot>${generated.sources.path}</sourceRoot>
@@ -79,21 +106,13 @@
                   <extraarg>-nexclude</extraarg>
                   <extraarg>urn:ihe:iti:xds-b:2007</extraarg>
                   <extraarg>-nexclude</extraarg>
-                  <extraarg>
-                    urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0=oasis.names.tc.ebxml_regrep.xsd.lcm._3
-                  </extraarg>
+                  <extraarg>urn:oasis:names:tc:ebxml-regrep:xsd:lcm:3.0=oasis.names.tc.ebxml_regrep.xsd.lcm._3</extraarg>
                   <extraarg>-nexclude</extraarg>
-                  <extraarg>
-                    urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0=oasis.names.tc.ebxml_regrep.xsd.query._3
-                  </extraarg>
+                  <extraarg>urn:oasis:names:tc:ebxml-regrep:xsd:query:3.0=oasis.names.tc.ebxml_regrep.xsd.query._3</extraarg>
                   <extraarg>-nexclude</extraarg>
-                  <extraarg>
-                    urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0=oasis.names.tc.ebxml_regrep.xsd.rim._3
-                  </extraarg>
+                  <extraarg>urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0=oasis.names.tc.ebxml_regrep.xsd.rim._3</extraarg>
                   <extraarg>-nexclude</extraarg>
-                  <extraarg>
-                    urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0=oasis.names.tc.ebxml_regrep.xsd.rs._3
-                  </extraarg>
+                  <extraarg>urn:oasis:names:tc:ebxml-regrep:xsd:rs:3.0=oasis.names.tc.ebxml_regrep.xsd.rs._3</extraarg>
                   <extraarg>-exceptionSuper</extraarg>
                   <extraarg>telematik.ws.conn.exception.FaultMessageException</extraarg>
                   <extraarg>-xjc-Xfluent-api</extraarg>
@@ -114,8 +133,7 @@
                   <bindingFiles>
                     <bindingFile>${binding.path}/SignatureService_V7_5.jaxws.xjb</bindingFile>
                     <bindingFile>${binding.path}/SignatureService_V7_5.jaxb.xjb</bindingFile>
-                    <bindingFile>${binding.path}/CertificateServiceCommon_V2_0.jaxb.xjb
-                    </bindingFile>
+                    <bindingFile>${binding.path}/CertificateServiceCommon_V2_0.jaxb.xjb</bindingFile>
                   </bindingFiles>
                   <extraargs>
                     <extraarg>-wsdlLocation</extraarg>
@@ -127,8 +145,7 @@
                   <bindingFiles>
                     <bindingFile>${binding.path}/CertificateService_V6_0.jaxws.xjb</bindingFile>
                     <bindingFile>${binding.path}/CertificateService_V6_0.jaxb.xjb</bindingFile>
-                    <bindingFile>${binding.path}/CertificateServiceCommon_V2_0.jaxb.xjb
-                    </bindingFile>
+                    <bindingFile>${binding.path}/CertificateServiceCommon_V2_0.jaxb.xjb</bindingFile>
                   </bindingFiles>
                   <extraargs>
                     <extraarg>-wsdlLocation</extraarg>
@@ -195,8 +212,7 @@
                   </bindingFiles>
                   <extraargs>
                     <extraarg>-wsdlLocation</extraarg>
-                    <extraarg>${wsdl.github.url}conn/phrs/PHRManagementService_V2_0_2.wsdl
-                    </extraarg>
+                    <extraarg>${wsdl.github.url}conn/phrs/PHRManagementService_V2_0_2.wsdl</extraarg>
                   </extraargs>
                 </wsdlOption>
                 <wsdlOption>
@@ -208,46 +224,13 @@
                   </bindingFiles>
                   <extraargs>
                     <extraarg>-wsdlLocation</extraarg>
-                    <extraarg>${wsdl.github.url}conn/phrs/PHRManagementService_V2_5_2.wsdl
-                    </extraarg>
+                    <extraarg>${wsdl.github.url}conn/phrs/PHRManagementService_V2_5_2.wsdl</extraarg>
                   </extraargs>
                 </wsdlOption>
               </wsdlOptions>
             </configuration>
           </execution>
         </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.cxf.xjcplugins</groupId>
-            <artifactId>cxf-xjc-ts</artifactId>
-            <version>${cxf-xjc.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-fluent-api</artifactId>
-            <version>${jaxb.fluent.api.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-basics</artifactId>
-            <version>0.13.1</version>
-          </dependency>
-          <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>${xml.bind.jaxb.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>${xml.bind.jaxb.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.apache.cxf</groupId>
@@ -257,8 +240,7 @@
           <additionalJvmArgs>-Djavax.xml.accessExternalDTD=file</additionalJvmArgs>
           <extensions>
             <extension>org.apache.cxf.xjcplugins:cxf-xjc-ts:${cxf-xjc.version}</extension>
-            <extension>org.jvnet.jaxb2_commons:jaxb2-fluent-api:${jaxb.fluent.api.version}
-            </extension>
+            <extension>org.jvnet.jaxb2_commons:jaxb2-fluent-api:${jaxb.fluent.api.version}</extension>
             <extension>org.jvnet.jaxb2_commons:jaxb2-basics:0.13.1</extension>
             <extension>javax.xml.bind:jaxb-api:${xml.bind.jaxb.version}</extension>
             <extension>com.sun.xml.bind:jaxb-impl:${xml.bind.jaxb.version}</extension>
@@ -267,10 +249,10 @@
         <executions>
           <execution>
             <id>generate-sources</id>
-            <phase>generate-sources</phase>
             <goals>
               <goal>xsdtojava</goal>
             </goals>
+            <phase>generate-sources</phase>
             <configuration>
               <sourceRoot>${generated.sources.path}</sourceRoot>
               <xsdOptions>
@@ -313,10 +295,10 @@
         <executions>
           <execution>
             <id>add-source</id>
-            <phase>generate-sources</phase>
             <goals>
               <goal>add-source</goal>
             </goals>
+            <phase>generate-sources</phase>
             <configuration>
               <sources>
                 <source>${generated.sources.path}</source>
