@@ -1,9 +1,21 @@
-![Maven Central Version](https://img.shields.io/maven-central/v/com.oviva.epa/diga-epa-lib)
+[![Maven Central Version](https://img.shields.io/maven-central/v/com.oviva.epa/diga-epa-lib)](https://central.sonatype.com/artifact/com.oviva.epa/diga-epa-client)
 
 # Electronic Health Record (ePA) Library for DiGA Use Cases
 
 This library interacts with the Telematik-Infrastuktur (TI) via a Konnektor to write structured HL7/FHIR bundles for
 DiGA treatments into the electronic health record (ePA).
+
+## Usage: Maven Artifact
+1. Add the [ePA Client Library](https://central.sonatype.com/artifact/com.oviva.epa/diga-epa-client)
+   ```xml
+   <dependency>
+     <groupId>com.oviva.epa</groupId>
+     <artifactId>diga-epa-client</artifactId>
+     <version>${version}</version>
+   </dependency>
+   ```
+2. See [KonnektorServiceAcceptanceTest](./diga-epa-client/src/test/java/com/oviva/epa/client/KonnektorServiceAcceptanceTest.java) on how to initialise the client.
+
 
 
 ## Pre-requisites
@@ -38,20 +50,6 @@ sequenceDiagram
    note over app,konn: writes a structured MIO 1.1 bundle<br> to the ePA of a given patient
    konn -->>-app: ok
 ```
-
-## Usage
-### Maven Dependency
-1. [Setup Maven Settings for GitHub packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry#installing-a-package)
-2. Add the [ePA Client Library](https://github.com/oviva-ag/diga-epa-lib/packages/2098135)
-   ```xml
-   <dependency>
-     <groupId>com.oviva.epa</groupId>
-     <artifactId>diga-epa-client</artifactId>
-     <version>${version}</version>
-   </dependency>
-   ```
-3. See [KonnektorServiceAcceptanceTest](./diga-epa-client/src/test/java/com/oviva/epa/client/KonnektorServiceAcceptanceTest.java) on how to initialise the client.
-   
 
 ## Developing the Library
 1. Copy the required keystore received with the Konnektor
