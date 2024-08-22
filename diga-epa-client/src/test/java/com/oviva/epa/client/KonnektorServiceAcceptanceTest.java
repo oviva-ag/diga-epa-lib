@@ -60,6 +60,9 @@ class KonnektorServiceAcceptanceTest {
   private static final String USER_ID = "admin";
   private static final int PROXY_PORT = 3128;
 
+  private static final String MIME_FHIR_XML = "application/fhir+xml";
+  private static final String MIME_PDF = "application/pdf";
+
   private KonnektorService konnektorService;
 
   @BeforeEach
@@ -123,6 +126,32 @@ class KonnektorServiceAcceptanceTest {
   }
 
   @Test
+  void writePdfDocument() {
+
+    var documentId = UUID.randomUUID();
+
+    // 1) get home community
+    var hcid = konnektorService.getHomeCommunityID(KVNR);
+    var recordIdentifier = new RecordIdentifier(KVNR, hcid);
+
+    // 2) read author/telematik ID from SMC-B
+    var authorInstitution =
+        konnektorService.getAuthorInstitutions().stream()
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("no SMC-B found"));
+
+    // prepare document
+    // IMPORTANT: Only PDF/A is allowed!
+    // See: A_25233 & A_24864-02
+    // https://gemspec.gematik.de/docs/gemSpec/gemSpec_Aktensystem_ePAfueralle/latest/#A_25233
+    var document =
+        buildDocumentPayload(documentId, authorInstitution, hcid, MIME_PDF, loadExamplePdf());
+
+    // 3) write the PDF/A-1a document
+    assertDoesNotThrow(() -> konnektorService.writeDocument(recordIdentifier, document));
+  }
+
+  @Test
   void writeDocument() {
 
     var documentId = UUID.randomUUID();
@@ -138,7 +167,9 @@ class KonnektorServiceAcceptanceTest {
         konnektorService.getAuthorInstitutions().stream()
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("no SMC-B found"));
-    var document = buildDocumentPayload(documentId, authorInstitution, hcid, EXPORT_XML.getBytes());
+    var document =
+        buildDocumentPayload(
+            documentId, authorInstitution, hcid, MIME_FHIR_XML, EXPORT_XML.getBytes());
 
     // 3) write the FHIR/MIO document
     assertDoesNotThrow(() -> konnektorService.writeDocument(recordIdentifier, document));
@@ -161,7 +192,9 @@ class KonnektorServiceAcceptanceTest {
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("no SMC-B found"));
 
-    var document = buildDocumentPayload(documentId, authorInstitution, hcid, EXPORT_XML.getBytes());
+    var document =
+        buildDocumentPayload(
+            documentId, authorInstitution, hcid, MIME_FHIR_XML, EXPORT_XML.getBytes());
 
     // 3) write the FHIR/MIO document
     assertDoesNotThrow(() -> konnektorService.writeDocument(recordIdentifier, document));
@@ -169,9 +202,20 @@ class KonnektorServiceAcceptanceTest {
     // 4) replace the document
     var newDocumentId = UUID.randomUUID();
     var newDocument =
-        buildDocumentPayload(newDocumentId, authorInstitution, hcid, EXPORT_XML.getBytes());
+        buildDocumentPayload(
+            newDocumentId, authorInstitution, hcid, MIME_FHIR_XML, EXPORT_XML.getBytes());
     assertDoesNotThrow(
         () -> konnektorService.replaceDocument(recordIdentifier, newDocument, documentId));
+  }
+
+  private byte[] loadExamplePdf() {
+    try (var is = this.getClass().getClassLoader().getResourceAsStream("example_pdfa.pdf")) {
+      return is.readAllBytes();
+    } catch (IOException e) {
+      fail(e);
+    }
+
+    return new byte[0];
   }
 
   /** establish a connection to the TI Konnektor */
@@ -202,7 +246,11 @@ class KonnektorServiceAcceptanceTest {
   }
 
   private Document buildDocumentPayload(
-      UUID id, AuthorInstitution authorInstitution, String homeCommunityId, byte[] contents) {
+      UUID id,
+      AuthorInstitution authorInstitution,
+      String homeCommunityId,
+      String mimeType,
+      byte[] contents) {
     var repositoryUniqueId = homeCommunityId;
     var currentDate = LocalDateTime.now().toString();
 
@@ -239,7 +287,7 @@ class KonnektorServiceAcceptanceTest {
             HealthcareFacilityCode.PATIENT_AUSSERHALB_BETREUUNG.getValue(),
             "de-DE",
             "",
-            "application/fhir+xml",
+            mimeType,
             PracticeSettingCode.PATIENT_AUSSERHALB_BETREUUNG.getValue(),
             List.of(),
             null,
