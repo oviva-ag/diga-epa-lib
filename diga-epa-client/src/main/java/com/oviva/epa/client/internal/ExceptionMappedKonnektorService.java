@@ -5,6 +5,7 @@ import com.oviva.epa.client.model.*;
 import de.gematik.epa.ihe.model.document.Document;
 import de.gematik.epa.ihe.model.simple.AuthorInstitution;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import jakarta.xml.ws.WebServiceException;
 import java.util.List;
 import java.util.UUID;
 import telematik.ws.conn.exception.FaultMessageException;
@@ -73,7 +74,7 @@ public class ExceptionMappedKonnektorService implements KonnektorService {
   private static <T> T wrap(WebServiceExecutor<T> requestor) {
     try {
       return requestor.execute();
-    } catch (FaultMessageException e) {
+    } catch (WebServiceException e) {
       throw new KonnektorException("request failed: " + e.getMessage(), e);
     }
   }
