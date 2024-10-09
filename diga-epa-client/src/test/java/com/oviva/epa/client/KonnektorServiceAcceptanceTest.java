@@ -86,6 +86,7 @@ class KonnektorServiceAcceptanceTest {
   }
 
   @Test
+  @Disabled("rate limited")
   void getAuthorizationList() {
 
     // IMPORTANT: This is strictly rate-limited to once a day!
@@ -261,13 +262,21 @@ class KonnektorServiceAcceptanceTest {
         contents,
         new DocumentMetadata(
             List.of(
+                // Telematik-ID der DiGA^Name der DiGA (Name der
+                // Verordnungseinheit)^Oviva-AG^^^^^^&<OID für DiGAs, wie in professionOID>&ISO
+                // https://gemspec.gematik.de/docs/gemSpec/gemSpec_DM_ePA_EU-Pilot/gemSpec_DM_ePA_EU-Pilot_V1.53.1/#2.1.4.3.1
                 new Author(
-                    null,
+                    authorInstitution.identifier(),
                     "Oviva Direkt für Adipositas",
                     "Oviva AG",
                     "",
                     "",
                     "",
+                    // professionOID for DiGA:
+                    // https://gemspec.gematik.de/docs/gemSpec/gemSpec_OID/gemSpec_OID_V3.19.0/#3.5.1.3
+                    // TODO read this from the SMC-B, see
+                    // com.oviva.epa.client.internal.svc.utils.CertificateUtils::getProfessionInfoFromCertificate
+                    "1.2.276.0.76.4.282", // OID
                     // Der identifier in AuthorInstitution muss eine gültige TelematikId sein, so
                     // wie sie z. B. auf der SMC-B-Karte enthalten ist
                     List.of(authorInstitution),
