@@ -65,9 +65,9 @@
     <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
     <version-maven-plugin.version>2.17.1</version-maven-plugin.version>
 
-    <mockito.version>4.8.0</mockito.version>
-    <junit.version>5.8.2</junit.version>
-    <slf4j.version>2.0.7</slf4j.version>
+    <mockito.version>5.14.2</mockito.version>
+    <junit5.version>5.11.3</junit5.version>
+    <slf4j.version>2.0.16</slf4j.version>
     <apache-cxf.version>4.0.5</apache-cxf.version>
   </properties>
 
@@ -112,7 +112,7 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-bom</artifactId>
-        <version>2.0.14</version>
+        <version>${slf4j.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -120,7 +120,7 @@
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcutil-jdk18on</artifactId>
-        <version>1.78.1</version>
+        <version>1.79</version>
       </dependency>
 
       <dependency>
@@ -132,7 +132,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.10.3</version>
+        <version>${junit5.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -144,7 +144,7 @@
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-bom</artifactId>
-        <version>5.12.0</version>
+        <version>${mockito.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
