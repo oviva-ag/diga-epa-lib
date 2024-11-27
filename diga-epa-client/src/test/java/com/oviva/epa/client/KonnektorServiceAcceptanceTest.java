@@ -88,14 +88,14 @@ class KonnektorServiceAcceptanceTest {
   }
 
   @Test
-  void authSign() {
+  void authSignRsaPss() {
 
     var cards = konnektorService.getCardsInfo();
     assertThat(cards.size(), equalTo(1));
     var card = cards.get(0);
 
     var signed =
-        konnektorService.authSign(card.handle(), "Hello!".getBytes(StandardCharsets.UTF_8));
+        konnektorService.authSignRsaPss(card.handle(), "Hello!".getBytes(StandardCharsets.UTF_8));
 
     assertEquals("expected", Base64.getEncoder().withoutPadding().encodeToString(signed));
   }

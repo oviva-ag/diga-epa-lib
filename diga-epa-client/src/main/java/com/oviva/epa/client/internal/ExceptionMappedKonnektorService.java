@@ -43,8 +43,14 @@ public class ExceptionMappedKonnektorService implements KonnektorService {
 
   @NonNull
   @Override
-  public byte[] authSign(@NonNull String cardHandle, byte[] bytesToSign) {
-    return wrap(() -> delegate.authSign(cardHandle, bytesToSign));
+  public byte[] authSignRsaPss(@NonNull String cardHandle, byte[] bytesToSign) {
+    return wrap(() -> delegate.authSignRsaPss(cardHandle, bytesToSign));
+  }
+
+  @NonNull
+  @Override
+  public byte[] authSignEcdsa(@NonNull String cardHandle, byte[] bytesToSign) {
+    return wrap(() -> delegate.authSignEcdsa(cardHandle, bytesToSign));
   }
 
   @Override

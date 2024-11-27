@@ -22,18 +22,31 @@ public interface KonnektorService {
    * Uses the AuthSignatureServiceBinding::ExternalAuthenticate method of a specified card to sign
    * arbitrary bytes.
    *
-   * <p><b>IMPORTANT:</b> The signature algorithms are severely limited, this only supports ECC
-   * cryptography with the brainpoolP256r1 curve</b>
+   * <p><b>IMPORTANT:</b>The actual algorithms/public keys can be read from the card certificate</b>
+   *
+   * @param cardHandle the handle of the card used to sign
+   * @param bytesToSign arbitrary bytes to sign
+   * @return the signed bytes with the algorithm
+   *     <pre>RSA_SIGN(SHA256(bytesToSign))</pre>
+   */
+  @NonNull
+  byte[] authSignRsaPss(@NonNull String cardHandle, byte[] bytesToSign);
+
+  /**
+   * Uses the AuthSignatureServiceBinding::ExternalAuthenticate method of a specified card to sign
+   * arbitrary bytes.
+   *
+   * <p><b>IMPORTANT:</b>The actual algorithms/public keys can be read from the card certificate</b>
    *
    * @param cardHandle the handle of the card used to sign
    * @param bytesToSign arbitrary bytes to sign
    * @return the signed bytes in the <a
    *     href="https://datatracker.ietf.org/doc/html/rfc7518#section-3.4">concatenated form</a> with
    *     the algorithm
-   *     <pre>CONCAT(SIGN(SHA256(bytesToSign)))</pre>
+   *     <pre>CONCAT(ECDSA_SIGN(SHA256(bytesToSign)))</pre>
    */
   @NonNull
-  byte[] authSign(@NonNull String cardHandle, byte[] bytesToSign);
+  byte[] authSignEcdsa(@NonNull String cardHandle, byte[] bytesToSign);
 
   @NonNull
   PinStatus verifySmcPin(@NonNull String cardHandle);

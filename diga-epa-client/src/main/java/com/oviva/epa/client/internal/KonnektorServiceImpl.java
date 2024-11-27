@@ -107,22 +107,25 @@ public class KonnektorServiceImpl implements KonnektorService {
   @NonNull
   @Override
   public X509Certificate readAuthenticationCertificateForCard(@NonNull String cardHandle) {
-    return certificateServiceClient.readAuthenticationCertificateForCard(cardHandle);
+    return certificateServiceClient.readRsaAuthenticationCertificateForCard(cardHandle);
   }
 
   @NonNull
   @Override
-  public byte[] authSign(@NonNull String cardHandle, byte[] bytesToSign) {
+  public byte[] authSignRsaPss(@NonNull String cardHandle, byte[] bytesToSign) {
     // https://gemspec.gematik.de/docs/gemSpec/gemSpec_Kon/gemSpec_Kon_V5.24.0/#4.1.13.1.1
-    // TODO?
-
-    var cert = certificateServiceClient.readAuthenticationCertificateForCard(cardHandle);
-    System.out.println(cert);
-    var alg = cert.getPublicKey().getAlgorithm();
-    // TODO: check cert, should be brainpool curve!
 
     var hash = Digest.sha256(bytesToSign);
-    return authSignatureServiceClient.signAuthHash(cardHandle, hash);
+    return authSignatureServiceClient.signAuthHashRsaPss(cardHandle, hash);
+  }
+
+  @NonNull
+  @Override
+  public byte[] authSignEcdsa(@NonNull String cardHandle, byte[] bytesToSign) {
+    // https://gemspec.gematik.de/docs/gemSpec/gemSpec_Kon/gemSpec_Kon_V5.24.0/#4.1.13.1.1
+
+    var hash = Digest.sha256(bytesToSign);
+    return authSignatureServiceClient.signAuthHashEcdsa(cardHandle, hash);
   }
 
   @Override
