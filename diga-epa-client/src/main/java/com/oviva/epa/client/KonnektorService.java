@@ -4,6 +4,7 @@ import com.oviva.epa.client.model.*;
 import de.gematik.epa.ihe.model.document.Document;
 import de.gematik.epa.ihe.model.simple.AuthorInstitution;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,6 +14,26 @@ public interface KonnektorService {
 
   @NonNull
   List<Card> getCardsInfo();
+
+  @NonNull
+  X509Certificate readAuthenticationCertificateForCard(@NonNull String cardHandle);
+
+  /**
+   * Uses the AuthSignatureServiceBinding::ExternalAuthenticate method of a specified card to sign
+   * arbitrary bytes.
+   *
+   * <p><b>IMPORTANT:</b> The signature algorithms are severely limited, this only supports ECC
+   * cryptography with the brainpoolP256r1 curve</b>
+   *
+   * @param cardHandle the handle of the card used to sign
+   * @param bytesToSign arbitrary bytes to sign
+   * @return the signed bytes in the <a
+   *     href="https://datatracker.ietf.org/doc/html/rfc7518#section-3.4">concatenated form</a> with
+   *     the algorithm
+   *     <pre>CONCAT(SIGN(SHA256(bytesToSign)))</pre>
+   */
+  @NonNull
+  byte[] authSign(@NonNull String cardHandle, byte[] bytesToSign);
 
   @NonNull
   PinStatus verifySmcPin(@NonNull String cardHandle);

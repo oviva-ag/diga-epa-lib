@@ -17,6 +17,7 @@
 package com.oviva.epa.client.konn.internal;
 
 import com.oviva.epa.client.konn.KonnektorConnection;
+import telematik.ws.conn.authsignatureservice.wsdl.v7_4.AuthSignatureServicePortType;
 import telematik.ws.conn.cardservice.wsdl.v8_1.CardServicePortType;
 import telematik.ws.conn.certificateservice.wsdl.v6_0.CertificateServicePortType;
 import telematik.ws.conn.eventservice.wsdl.v6_1.EventServicePortType;
@@ -34,6 +35,7 @@ public class KonnektorConnectionImpl implements KonnektorConnection {
   private final CertificateServicePortType certificateService;
   private final SignatureServicePortType signatureService;
   private final VSDServicePortType vsdService;
+  private final AuthSignatureServicePortType authSignatureService;
 
   public KonnektorConnectionImpl(
       PHRServicePortType phrService,
@@ -42,7 +44,8 @@ public class KonnektorConnectionImpl implements KonnektorConnection {
       CardServicePortType cardService,
       CertificateServicePortType certificateService,
       SignatureServicePortType signatureService,
-      VSDServicePortType vsdService) {
+      VSDServicePortType vsdService,
+      AuthSignatureServicePortType authSignatureService) {
     this.phrService = phrService;
     this.phrManagementService = phrManagementService;
     this.eventService = eventService;
@@ -50,6 +53,7 @@ public class KonnektorConnectionImpl implements KonnektorConnection {
     this.certificateService = certificateService;
     this.signatureService = signatureService;
     this.vsdService = vsdService;
+    this.authSignatureService = authSignatureService;
   }
 
   @Override
@@ -85,5 +89,10 @@ public class KonnektorConnectionImpl implements KonnektorConnection {
   @Override
   public VSDServicePortType vsdService() {
     return vsdService;
+  }
+
+  @Override
+  public AuthSignatureServicePortType authSignatureService() {
+    return authSignatureService;
   }
 }

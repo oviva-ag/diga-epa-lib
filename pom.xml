@@ -39,8 +39,8 @@
   </developers>
 
   <modules>
-    <module>epa-fm-api</module>
     <module>diga-epa-client</module>
+    <module>epa-fm-api</module>
   </modules>
 
   <scm>

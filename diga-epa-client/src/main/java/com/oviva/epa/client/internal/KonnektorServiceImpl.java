@@ -1,14 +1,12 @@
 package com.oviva.epa.client.internal;
 
 import com.oviva.epa.client.*;
-import com.oviva.epa.client.internal.svc.CardServiceClient;
-import com.oviva.epa.client.internal.svc.CertificateServiceClient;
-import com.oviva.epa.client.internal.svc.EventServiceClient;
-import com.oviva.epa.client.internal.svc.PhrManagementServiceClient;
+import com.oviva.epa.client.internal.svc.*;
 import com.oviva.epa.client.internal.svc.model.KonnektorContext;
 import com.oviva.epa.client.internal.svc.phr.PhrServiceClient;
 import com.oviva.epa.client.internal.svc.phr.SmbInformationServiceClient;
 import com.oviva.epa.client.internal.svc.phr.model.RecordIdentifierAdapter;
+import com.oviva.epa.client.internal.svc.utils.Digest;
 import com.oviva.epa.client.konn.KonnektorConnection;
 import com.oviva.epa.client.model.*;
 import de.gematik.epa.LibIheXdsMain;
@@ -21,6 +19,7 @@ import de.gematik.epa.ihe.model.simple.AuthorInstitution;
 import de.gematik.epa.ihe.model.simple.SubmissionSetMetadata;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import java.security.cert.X509Certificate;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -39,6 +38,7 @@ import telematik.ws.conn.phrs.phrmanagementservice.xsd.v2_5.GetAuthorizationStat
 public class KonnektorServiceImpl implements KonnektorService {
 
   private static Logger log = LoggerFactory.getLogger(KonnektorServiceImpl.class);
+  private static final String CERT_ALG_BP = "SHA256withECDSA";
   private static final String REGISTRY_STATUS_SUCCESS =
       "urn:oasis:names:tc:ebxml-regrep:ResponseStatusType:Success";
   private final String userAgent; // A_22470-05
@@ -46,6 +46,8 @@ public class KonnektorServiceImpl implements KonnektorService {
   private final CardServiceClient cardServiceClient;
   private final PhrManagementServiceClient phrManagementServiceClient;
   private final PhrServiceClient phrServiceClient;
+  private final CertificateServiceClient certificateServiceClient;
+  private final AuthSignatureServiceClient authSignatureServiceClient;
 
   private final SmbInformationServiceClient smbInformationServiceClient;
 
@@ -64,11 +66,14 @@ public class KonnektorServiceImpl implements KonnektorService {
         new PhrManagementServiceClient(
             connection.phrManagementService(), konnektorContext, userAgent);
 
-    var certificateServiceClient =
+    certificateServiceClient =
         new CertificateServiceClient(connection.certificateService(), konnektorContext);
 
     smbInformationServiceClient =
         new SmbInformationServiceClient(eventServiceClient, certificateServiceClient);
+
+    authSignatureServiceClient =
+        new AuthSignatureServiceClient(connection.authSignatureService(), konnektorContext);
   }
 
   @NonNull
@@ -97,6 +102,27 @@ public class KonnektorServiceImpl implements KonnektorService {
   public @NonNull PinStatus verifySmcPin(@NonNull String cardHandle) {
     var response = cardServiceClient.getPinStatusResponse(cardHandle, "PIN.SMC");
     return PinStatus.valueOf(response.getPinStatus().name());
+  }
+
+  @NonNull
+  @Override
+  public X509Certificate readAuthenticationCertificateForCard(@NonNull String cardHandle) {
+    return certificateServiceClient.readAuthenticationCertificateForCard(cardHandle);
+  }
+
+  @NonNull
+  @Override
+  public byte[] authSign(@NonNull String cardHandle, byte[] bytesToSign) {
+    // https://gemspec.gematik.de/docs/gemSpec/gemSpec_Kon/gemSpec_Kon_V5.24.0/#4.1.13.1.1
+    // TODO?
+
+    var cert = certificateServiceClient.readAuthenticationCertificateForCard(cardHandle);
+    System.out.println(cert);
+    var alg = cert.getPublicKey().getAlgorithm();
+    // TODO: check cert, should be brainpool curve!
+
+    var hash = Digest.sha256(bytesToSign);
+    return authSignatureServiceClient.signAuthHash(cardHandle, hash);
   }
 
   @Override

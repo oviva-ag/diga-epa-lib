@@ -22,12 +22,14 @@ import de.gematik.epa.ihe.model.document.DocumentMetadata;
 import de.gematik.epa.ihe.model.simple.AuthorInstitution;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import javax.net.ssl.KeyManager;
@@ -83,6 +85,19 @@ class KonnektorServiceAcceptanceTest {
 
     // if the status is VERIFIABLE, it means the PIN must be reinserted again
     assertThat(pinStatus, equalTo(PinStatus.VERIFIED));
+  }
+
+  @Test
+  void authSign() {
+
+    var cards = konnektorService.getCardsInfo();
+    assertThat(cards.size(), equalTo(1));
+    var card = cards.get(0);
+
+    var signed =
+        konnektorService.authSign(card.handle(), "Hello!".getBytes(StandardCharsets.UTF_8));
+
+    assertEquals("expected", Base64.getEncoder().withoutPadding().encodeToString(signed));
   }
 
   @Test

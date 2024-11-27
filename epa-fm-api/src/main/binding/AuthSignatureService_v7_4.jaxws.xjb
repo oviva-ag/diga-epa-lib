@@ -1,0 +1,5 @@
+<jaxws:bindings
+        wsdlLocation="../resources/schemas/conn/AuthSignatureService_v7_4_1.wsdl"
+        xmlns:jaxws="https://jakarta.ee/xml/ns/jaxws">
+    <jaxws:package name="telematik.ws.conn.authsignatureservice.wsdl.v7_4"/>
+</jaxws:bindings>
