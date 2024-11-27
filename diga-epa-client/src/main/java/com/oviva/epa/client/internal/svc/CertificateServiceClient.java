@@ -47,12 +47,13 @@ public class CertificateServiceClient {
   }
 
   public String getTelematikIdForCard(@NonNull String cardHandle) {
-    var cert = readCertificateForRef(cardHandle, CertRefEnum.C_AUT);
+    var cert = readCertificateForRef(cardHandle, CertRefEnum.C_AUT, CryptType.ECC);
     return CertificateUtils.getTelematikIdFromCertificate(cert);
   }
 
-  public X509Certificate readAuthenticationCertificateForCard(@NonNull String cardHandle) {
-    return readCertificateForRef(cardHandle, CertRefEnum.C_AUT);
+  public X509Certificate readRsaAuthenticationCertificateForCard(@NonNull String cardHandle) {
+    // TODO: make type configurable or clear in method name
+    return readCertificateForRef(cardHandle, CertRefEnum.C_AUT, CryptType.RSA);
   }
 
   /**
@@ -67,9 +68,9 @@ public class CertificateServiceClient {
    *     also</a>
    */
   private X509Certificate readCertificateForRef(
-      @NonNull String cardHandle, @NonNull CertRefEnum certRef) {
+      @NonNull String cardHandle, @NonNull CertRefEnum certRef, CryptType cryptType) {
 
-    final var cardCertRequest = buildReadCardCertificateRequest(cardHandle, certRef);
+    final var cardCertRequest = buildReadCardCertificateRequest(cardHandle, certRef, cryptType);
     var cardCertResponse = readCardCertificate(cardCertRequest);
 
     var certificate =
@@ -97,14 +98,14 @@ public class CertificateServiceClient {
   }
 
   private ReadCardCertificate buildReadCardCertificateRequest(
-      String cardHandle, CertRefEnum certRef) {
+      String cardHandle, CertRefEnum certRef, CryptType cryptType) {
     final var certRefList = new ObjectFactory().createReadCardCertificateCertRefList();
     certRefList.getCertRef().add(certRef);
     final var readCardCertificateRequest = new ObjectFactory().createReadCardCertificate();
     readCardCertificateRequest.setCardHandle(cardHandle);
     readCardCertificateRequest.setCertRefList(certRefList);
     readCardCertificateRequest.setContext(context.toContext());
-    readCardCertificateRequest.setCrypt(CryptType.ECC);
+    readCardCertificateRequest.setCrypt(cryptType);
     return readCardCertificateRequest;
   }
 }

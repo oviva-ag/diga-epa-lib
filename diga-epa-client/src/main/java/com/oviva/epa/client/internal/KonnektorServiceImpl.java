@@ -107,22 +107,20 @@ public class KonnektorServiceImpl implements KonnektorService {
   @NonNull
   @Override
   public X509Certificate readAuthenticationCertificateForCard(@NonNull String cardHandle) {
-    return certificateServiceClient.readAuthenticationCertificateForCard(cardHandle);
+    return certificateServiceClient.readRsaAuthenticationCertificateForCard(cardHandle);
   }
 
   @NonNull
   @Override
   public byte[] authSign(@NonNull String cardHandle, byte[] bytesToSign) {
     // https://gemspec.gematik.de/docs/gemSpec/gemSpec_Kon/gemSpec_Kon_V5.24.0/#4.1.13.1.1
-    // TODO?
 
-    var cert = certificateServiceClient.readAuthenticationCertificateForCard(cardHandle);
-    System.out.println(cert);
-    var alg = cert.getPublicKey().getAlgorithm();
-    // TODO: check cert, should be brainpool curve!
+    // NOTE: usually SMC-B cards support RSA as well as ECC with a brainpool curve.
+    // The actual type of the key can be inspected by getting the corresponding certificate from the
+    // card.
 
     var hash = Digest.sha256(bytesToSign);
-    return authSignatureServiceClient.signAuthHash(cardHandle, hash);
+    return authSignatureServiceClient.signAuthHashRsaPss(cardHandle, hash);
   }
 
   @Override
