@@ -24,8 +24,8 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import telematik.ws.conn.cardservice.xsd.v8_1.CardInfoType;
 import telematik.ws.conn.certificateservice.wsdl.v6_0.CertificateServicePortType;
+import telematik.ws.conn.certificateservice.xsd.v6_0.CryptType;
 import telematik.ws.conn.certificateservice.xsd.v6_0.ObjectFactory;
 import telematik.ws.conn.certificateservice.xsd.v6_0.ReadCardCertificate;
 import telematik.ws.conn.certificateservice.xsd.v6_0.ReadCardCertificateResponse;
@@ -46,13 +46,34 @@ public class CertificateServiceClient {
     this.context = context;
   }
 
-  public ReadCardCertificateResponse readCardCertificate(@NonNull ReadCardCertificate request) {
-    return certificateService.readCardCertificate(request);
+  public String getTelematikIdForCard(@NonNull String cardHandle) {
+    var cert = readCertificateForRef(cardHandle, CertRefEnum.C_AUT, CryptType.ECC);
+    return CertificateUtils.getTelematikIdFromCertificate(cert);
   }
 
-  public String getTelematikIdToCard(@NonNull CardInfoType card) {
-    final var cardCertRequest = buildReadCardCertificateRequest(card, CertRefEnum.C_AUT);
+  public X509Certificate readRsaAuthenticationCertificateForCard(@NonNull String cardHandle) {
+    return readCertificateForRef(cardHandle, CertRefEnum.C_AUT, CryptType.RSA);
+  }
 
+  public X509Certificate readEccAuthenticationCertificateForCard(@NonNull String cardHandle) {
+    return readCertificateForRef(cardHandle, CertRefEnum.C_AUT, CryptType.ECC);
+  }
+
+  /**
+   * @param certRef
+   *     <ul>
+   *       <li>C.AUT (Authentisierungszertifikat, HBAx, SM-B)
+   *       <li>C.ENC (Verschlüsselungszertifikat, HBAx, SM-B)
+   *       <li>C.SIG (nicht-qualifiziertes Signaturzertifikat, SM-B)
+   *       <li>C.QES (qualifiziertes Signaturzertifikat HBAx)
+   *     </ul>
+   *     <a href="https://gemspec.gematik.de/docs/gemILF/gemILF_PS/gemILF_PS_V2.24.0/#4.4.4.2">See
+   *     also</a>
+   */
+  private X509Certificate readCertificateForRef(
+      @NonNull String cardHandle, @NonNull CertRefEnum certRef, CryptType cryptType) {
+
+    final var cardCertRequest = buildReadCardCertificateRequest(cardHandle, certRef, cryptType);
     var cardCertResponse = readCardCertificate(cardCertRequest);
 
     var certificate =
@@ -67,24 +88,27 @@ public class CertificateServiceClient {
             .orElseThrow(
                 () ->
                     new NoSuchElementException(
-                        "No AUT certificate in readCardCertificate response for card: " + card));
+                        "No %s certificate in readCardCertificate response for card: %s"
+                            .formatted(certRef, cardHandle)));
 
-    X509Certificate cert =
-        Objects.requireNonNull(
-            CertificateUtils.toX509Certificate(certificate),
-            "AUT certificate data could not be decoded as X509 certificate");
+    return Objects.requireNonNull(
+        CertificateUtils.toX509Certificate(certificate),
+        "%s certificate data could not be decoded as X509 certificate".formatted(certRef));
+  }
 
-    return CertificateUtils.getTelematikIdFromCertificate(cert);
+  private ReadCardCertificateResponse readCardCertificate(@NonNull ReadCardCertificate request) {
+    return certificateService.readCardCertificate(request);
   }
 
   private ReadCardCertificate buildReadCardCertificateRequest(
-      CardInfoType cardInfo, CertRefEnum certRef) {
+      String cardHandle, CertRefEnum certRef, CryptType cryptType) {
     final var certRefList = new ObjectFactory().createReadCardCertificateCertRefList();
     certRefList.getCertRef().add(certRef);
     final var readCardCertificateRequest = new ObjectFactory().createReadCardCertificate();
-    readCardCertificateRequest.setCardHandle(cardInfo.getCardHandle());
+    readCardCertificateRequest.setCardHandle(cardHandle);
     readCardCertificateRequest.setCertRefList(certRefList);
     readCardCertificateRequest.setContext(context.toContext());
+    readCardCertificateRequest.setCrypt(cryptType);
     return readCardCertificateRequest;
   }
 }

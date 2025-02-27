@@ -48,6 +48,8 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import org.slf4j.event.Level;
 import telematik.ws.conn.SdsApi;
+import telematik.ws.conn.authsignatureservice.wsdl.v7_4.AuthSignatureService;
+import telematik.ws.conn.authsignatureservice.wsdl.v7_4.AuthSignatureServicePortType;
 import telematik.ws.conn.cardservice.wsdl.v8_1.CardService;
 import telematik.ws.conn.cardservice.wsdl.v8_1.CardServicePortType;
 import telematik.ws.conn.certificateservice.wsdl.v6_0.CertificateService;
@@ -91,6 +93,7 @@ public class KonnektorConnectionFactoryImpl implements KonnektorConnectionFactor
     var certificateService = createCertificateService(connectorServices);
     var signatureService = createSignatureService(connectorServices);
     var vsdService = createVSDService(connectorServices);
+    var authSignatureService = createAuthSignatureService(connectorServices);
 
     return new KonnektorConnectionImpl(
         phrService,
@@ -99,7 +102,8 @@ public class KonnektorConnectionFactoryImpl implements KonnektorConnectionFactor
         cardService,
         certificateService,
         signatureService,
-        vsdService);
+        vsdService,
+        authSignatureService);
   }
 
   /**
@@ -187,6 +191,14 @@ public class KonnektorConnectionFactoryImpl implements KonnektorConnectionFactor
 
   private <T> T getClientProxyImpl(final Class<T> portType, final URI endpointAddress) {
     return getClientProxyImpl(portType, SOAP11HTTP_BINDING, endpointAddress, null);
+  }
+
+  private AuthSignatureServicePortType createAuthSignatureService(
+      ConnectorServices connectorServices) {
+    return getClientProxyImpl(
+        AuthSignatureServicePortType.class,
+        readServiceEndpoint(
+            connectorServices, AuthSignatureService.SERVICE.getLocalPart(), "7.4.1", "7"));
   }
 
   /**
