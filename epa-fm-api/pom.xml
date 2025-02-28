@@ -15,7 +15,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <cxf-xjc.version>4.1.0</cxf-xjc.version>
     <xml.bind.jaxb.version>2.3.1</xml.bind.jaxb.version>
     <jaxb.fluent.api.version>3.0</jaxb.fluent.api.version>
     <generated.sources.path>${project.build.directory}/generated-sources</generated.sources.path>
@@ -36,7 +35,6 @@
     <dependency>
       <groupId>org.apache.cxf.xjc-utils</groupId>
       <artifactId>cxf-xjc-runtime</artifactId>
-      <version>${cxf-xjc.version}</version>
     </dependency>
     <dependency>
       <groupId>de.gematik.epa</groupId>
