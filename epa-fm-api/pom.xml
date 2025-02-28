@@ -15,7 +15,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <cxf-xjc.version>4.0.0</cxf-xjc.version>
+    <cxf-xjc.version>4.1.0</cxf-xjc.version>
     <xml.bind.jaxb.version>2.3.1</xml.bind.jaxb.version>
     <jaxb.fluent.api.version>3.0</jaxb.fluent.api.version>
     <generated.sources.path>${project.build.directory}/generated-sources</generated.sources.path>
@@ -304,7 +304,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.6.0</version>
         <executions>
           <execution>
             <id>add-source</id>
