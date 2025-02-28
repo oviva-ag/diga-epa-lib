@@ -9,3 +9,7 @@ epa-ps-sim-app/src/main/resources/keys/GEMATIK-IOP-2.p12
 epa-ps-sim-app/src/main/resources/application-gematik.yaml
 vKon*.p12
 .flattened-pom.xml
+*.p12
+epa-fm-api/src/main/resources/ref_conn/
+port_forward_ru.sh
+port_forward_pu.sh

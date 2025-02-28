@@ -6,6 +6,7 @@ import de.gematik.epa.ihe.model.document.Document;
 import de.gematik.epa.ihe.model.simple.AuthorInstitution;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.xml.ws.WebServiceException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.UUID;
 import telematik.ws.conn.exception.FaultMessageException;
@@ -32,6 +33,30 @@ public class ExceptionMappedKonnektorService implements KonnektorService {
   @Override
   public List<Card> getCardsInfo() {
     return wrap(delegate::getCardsInfo);
+  }
+
+  @NonNull
+  @Override
+  public X509Certificate readRsaAuthenticationCertificateForCard(@NonNull String cardHandle) {
+    return wrap(() -> delegate.readRsaAuthenticationCertificateForCard(cardHandle));
+  }
+
+  @NonNull
+  @Override
+  public X509Certificate readEccAuthenticationCertificateForCard(@NonNull String cardHandle) {
+    return wrap(() -> delegate.readEccAuthenticationCertificateForCard(cardHandle));
+  }
+
+  @NonNull
+  @Override
+  public byte[] authSignRsaPss(@NonNull String cardHandle, byte[] bytesToSign) {
+    return wrap(() -> delegate.authSignRsaPss(cardHandle, bytesToSign));
+  }
+
+  @NonNull
+  @Override
+  public byte[] authSignEcdsa(@NonNull String cardHandle, byte[] bytesToSign) {
+    return wrap(() -> delegate.authSignEcdsa(cardHandle, bytesToSign));
   }
 
   @Override

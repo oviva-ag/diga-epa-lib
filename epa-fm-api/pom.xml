@@ -9,9 +9,9 @@
 
   <artifactId>epa-fm-api</artifactId>
   <description>Contains Java classes generated from the WSDL description
-    of the interfaces of ePA-FM in the Konnektor.
+        of the interfaces of ePA-FM in the Konnektor.
 
-    Specifications see also: https://gemspec.gematik.de/docs/gemSpec/gemSpec_FM_ePA/latest/</description>
+        Specifications see also: https://gemspec.gematik.de/docs/gemSpec/gemSpec_FM_ePA/latest/</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,7 +21,7 @@
     <generated.sources.path>${project.build.directory}/generated-sources</generated.sources.path>
     <schema.root.path>${project.basedir}/src/main/resources/schemas</schema.root.path>
     <binding.path>${project.basedir}/src/main/binding</binding.path>
-    <wsdl.github.url>https://github.com/gematik/api-telematik/blob/5.0.6/</wsdl.github.url>
+    <wsdl.github.url>https://github.com/gematik/api-telematik/blob/5.0.8/</wsdl.github.url>
   </properties>
 
   <dependencies>
@@ -128,6 +128,19 @@
                 </bindingFiles>
               </defaultOptions>
               <wsdlOptions>
+                <wsdlOption>
+                  <wsdl>${schema.root.path}/conn/AuthSignatureService_v7_4_1.wsdl</wsdl>
+                  <bindingFiles>
+                    <bindingFile>${binding.path}/AuthSignatureService_v7_4.jaxws.xjb</bindingFile>
+                    <bindingFile>${binding.path}/SignatureService_V7_4.jaxws.xjb</bindingFile>
+                    <bindingFile>${binding.path}/SignatureService_V7_4.jaxb.xjb</bindingFile>
+                    <bindingFile>${binding.path}/CertificateServiceCommon_V2_0.jaxb.xjb</bindingFile>
+                  </bindingFiles>
+                  <extraargs>
+                    <extraarg>-wsdlLocation</extraarg>
+                    <extraarg>${wsdl.github.url}conn/AuthSignatureService_v7_4_1.wsdl</extraarg>
+                  </extraargs>
+                </wsdlOption>
                 <wsdlOption>
                   <wsdl>${schema.root.path}/conn/SignatureService_V7_5_6.wsdl</wsdl>
                   <bindingFiles>

@@ -52,7 +52,7 @@ public class SmbInformationServiceClient {
   }
 
   private SmbInformation retrieveSmbInformation(CardInfoType cardInfo) {
-    var telematikId = certificateServiceClient.getTelematikIdToCard(cardInfo);
+    var telematikId = certificateServiceClient.getTelematikIdForCard(cardInfo.getCardHandle());
 
     return new SmbInformation(telematikId, cardInfo.getIccsn(), cardInfo.getCardHolderName());
   }
