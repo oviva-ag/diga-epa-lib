@@ -58,17 +58,18 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <source-maven-plugin.version>3.2.1</source-maven-plugin.version>
-    <javadoc-maven-plugin.version>3.4.1</javadoc-maven-plugin.version>
+    <source-maven-plugin.version>3.3.1</source-maven-plugin.version>
+    <javadoc-maven-plugin.version>3.11.2</javadoc-maven-plugin.version>
     <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-    <maven-surefire-plugin.version>3.0.0-M9</maven-surefire-plugin.version>
-    <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
-    <version-maven-plugin.version>2.17.1</version-maven-plugin.version>
+    <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+    <spotless-maven-plugin.version>2.44.3</spotless-maven-plugin.version>
+    <version-maven-plugin.version>2.18.0</version-maven-plugin.version>
 
     <mockito.version>5.14.2</mockito.version>
     <junit5.version>5.11.3</junit5.version>
     <slf4j.version>2.0.16</slf4j.version>
-    <apache-cxf.version>4.0.5</apache-cxf.version>
+    <apache-cxf.version>4.1.0</apache-cxf.version>
+    <cxf-xjc.version>4.1.0</cxf-xjc.version>
   </properties>
 
   <dependencyManagement>
@@ -108,6 +109,11 @@
         <version>${apache-cxf.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf.xjc-utils</groupId>
+        <artifactId>cxf-xjc-runtime</artifactId>
+        <version>${cxf-xjc.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -158,6 +164,16 @@
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
           <version>${spotless-maven-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <version>1.7.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.5.0</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -337,7 +353,7 @@
           <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>0.5.0</version>
+            <version>0.7.0</version>
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>central</publishingServerId>
@@ -347,7 +363,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.2.4</version>
+            <version>3.2.7</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
