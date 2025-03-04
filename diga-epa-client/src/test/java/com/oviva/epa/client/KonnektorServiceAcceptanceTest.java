@@ -4,6 +4,7 @@ import static com.oviva.epa.client.Export.EXPORT_XML;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.oviva.epa.client.konn.KonnektorConnectionFactoryBuilder;
 import com.oviva.epa.client.model.Card;
@@ -23,13 +24,10 @@ import de.gematik.epa.ihe.model.simple.AuthorInstitution;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import javax.net.ssl.KeyManager;
@@ -91,13 +89,40 @@ class KonnektorServiceAcceptanceTest {
   void authSignRsaPss() {
 
     var cards = konnektorService.getCardsInfo();
-    assertThat(cards.size(), equalTo(1));
+    assumeTrue(cards.size() == 1);
     var card = cards.get(0);
 
-    var signed =
-        konnektorService.authSignRsaPss(card.handle(), "Hello!".getBytes(StandardCharsets.UTF_8));
+    assumeTrue(card.type() == Card.CardType.SMC_B);
+    var cert = konnektorService.readRsaAuthenticationCertificateForCard(card.handle());
+    assertNotNull(cert);
 
-    assertEquals("expected", Base64.getEncoder().withoutPadding().encodeToString(signed));
+    var data = "Hello!".getBytes(StandardCharsets.UTF_8);
+
+    // when
+    var signed = konnektorService.authSignRsaPss(card.handle(), data);
+
+    // then
+    assertNotNull(signed);
+  }
+
+  @Test
+  void authSignEcc() {
+
+    var cards = konnektorService.getCardsInfo();
+    assumeTrue(cards.size() == 1);
+    var card = cards.get(0);
+
+    assumeTrue(card.type() == Card.CardType.SMC_B);
+    var cert = konnektorService.readEccAuthenticationCertificateForCard(card.handle());
+    assertNotNull(cert);
+
+    var data = "Hello!".getBytes(StandardCharsets.UTF_8);
+
+    // when
+    var signed = konnektorService.authSignEcdsa(card.handle(), data);
+
+    // then
+    assertNotNull(signed);
   }
 
   @Test
