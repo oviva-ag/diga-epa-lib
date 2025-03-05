@@ -37,7 +37,7 @@ public class CertificateUtils {
   private static final String ADMISSION_IDENTIFIER_ID =
       ISISMTTObjectIdentifiers.id_isismtt_at_admission.getId();
   private static final String CERTIFICATE_TYPE_X509 = "X.509";
-  private static Logger log = LoggerFactory.getLogger(CertificateUtils.class);
+  private static final Logger log = LoggerFactory.getLogger(CertificateUtils.class);
 
   private CertificateUtils() {}
 

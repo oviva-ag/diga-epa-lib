@@ -6,5 +6,5 @@ public enum PinStatus {
   EMPTY_PIN,
   BLOCKED,
   VERIFIABLE,
-  DISABLED;
+  DISABLED
 }

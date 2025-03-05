@@ -18,7 +18,6 @@ package com.oviva.epa.client.internal.svc;
 
 import com.oviva.epa.client.internal.svc.model.KonnektorContext;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.util.NoSuchElementException;
 import telematik.ws.conn.cardservicecommon.xsd.v2_0.CardTypeType;
 import telematik.ws.conn.eventservice.wsdl.v6_1.EventServicePortType;
 import telematik.ws.conn.eventservice.xsd.v6_1.GetCards;
@@ -39,17 +38,6 @@ public class EventServiceClient {
   public GetCardsResponse getSmbInfo() {
     var request = buildGetCards(true, CardTypeType.SM_B);
     return getCards(request);
-  }
-
-  public String getCardHandle(CardTypeType cardType) {
-    var getCardsRequest = buildGetCards(true, cardType);
-    return getCards(getCardsRequest).getCards().getCard().stream()
-        .findFirst()
-        .orElseThrow(
-            () ->
-                new NoSuchElementException(
-                    String.format("No %s card was present in the Konnektor", cardType.value())))
-        .getCardHandle();
   }
 
   public GetCardsResponse getCards(@NonNull GetCards request) {

@@ -17,14 +17,9 @@
 package com.oviva.epa.client.konn.internal;
 
 import static jakarta.xml.ws.soap.SOAPBinding.SOAP11HTTP_BINDING;
-import static jakarta.xml.ws.soap.SOAPBinding.SOAP12HTTP_BINDING;
-import static jakarta.xml.ws.soap.SOAPBinding.SOAP12HTTP_MTOM_BINDING;
 
 import com.oviva.epa.client.konn.KonnektorConnection;
 import com.oviva.epa.client.konn.KonnektorConnectionFactory;
-import com.oviva.epa.client.konn.internal.interceptors.HomeCommunityBlockOutInterceptor;
-import com.oviva.epa.client.konn.internal.interceptors.MtomConfigOutInterceptor;
-import com.oviva.epa.client.konn.internal.util.XmlUtils;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.net.URI;
 import java.util.Arrays;
@@ -45,7 +40,6 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import org.slf4j.event.Level;
 import telematik.ws.conn.SdsApi;
 import telematik.ws.conn.authsignatureservice.wsdl.v7_4.AuthSignatureService;
@@ -56,17 +50,8 @@ import telematik.ws.conn.certificateservice.wsdl.v6_0.CertificateService;
 import telematik.ws.conn.certificateservice.wsdl.v6_0.CertificateServicePortType;
 import telematik.ws.conn.eventservice.wsdl.v6_1.EventService;
 import telematik.ws.conn.eventservice.wsdl.v6_1.EventServicePortType;
-import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_5.PHRManagementService;
-import telematik.ws.conn.phrs.phrmanagementservice.wsdl.v2_5.PHRManagementServicePortType;
-import telematik.ws.conn.phrs.phrservice.wsdl.v2_0.PHRService;
-import telematik.ws.conn.phrs.phrservice.wsdl.v2_0.PHRServicePortType;
-import telematik.ws.conn.plus.ObjectFactory;
 import telematik.ws.conn.servicedirectory.xsd.v3_1.ConnectorServices;
 import telematik.ws.conn.serviceinformation.xsd.v2_0.EndpointType;
-import telematik.ws.conn.signatureservice.wsdl.v7_5.SignatureService;
-import telematik.ws.conn.signatureservice.wsdl.v7_5.SignatureServicePortType;
-import telematik.ws.conn.vsds.vsdservice.wsdl.v5_2.VSDService;
-import telematik.ws.conn.vsds.vsdservice.wsdl.v5_2.VSDServicePortType;
 
 /** Uses Apache CXF to generate client implementations for the Konnektor web services. */
 public class KonnektorConnectionFactoryImpl implements KonnektorConnectionFactory {
@@ -86,24 +71,13 @@ public class KonnektorConnectionFactoryImpl implements KonnektorConnectionFactor
 
     var connectorServices = sdsApi().getConnectorSds();
 
-    var phrService = createPhrService(connectorServices);
-    var phrManagementService = createPHRManagementService(connectorServices);
     var eventService = createEventService(connectorServices);
     var cardService = createCardService(connectorServices);
     var certificateService = createCertificateService(connectorServices);
-    var signatureService = createSignatureService(connectorServices);
-    var vsdService = createVSDService(connectorServices);
     var authSignatureService = createAuthSignatureService(connectorServices);
 
     return new KonnektorConnectionImpl(
-        phrService,
-        phrManagementService,
-        eventService,
-        cardService,
-        certificateService,
-        signatureService,
-        vsdService,
-        authSignatureService);
+        eventService, cardService, certificateService, authSignatureService);
   }
 
   /**
@@ -202,65 +176,6 @@ public class KonnektorConnectionFactoryImpl implements KonnektorConnectionFactor
   }
 
   /**
-   * Creates the actual client implementation of the Konnektors {@link PHRServicePortType}
-   * interface.<br>
-   * Endpoint of the Konnektor Service to talk to is retrieved from the information in the {@link
-   * ConnectorServices} bean.
-   *
-   * @return PHRServicePortType implementation
-   */
-  private PHRServicePortType createPhrService(ConnectorServices connectorServices) {
-    return getClientProxyImpl(
-        PHRServicePortType.class,
-        SOAP12HTTP_MTOM_BINDING,
-        readServiceEndpoint(connectorServices, PHRService.SERVICE.getLocalPart(), "2.0.2", "2"),
-        jaxWsProxyFactory -> {
-          jaxWsProxyFactory.getFeatures().add(new WSAddressingFeature());
-          jaxWsProxyFactory.getOutInterceptors().add(new HomeCommunityBlockOutInterceptor());
-          jaxWsProxyFactory.getOutInterceptors().add(new MtomConfigOutInterceptor());
-        });
-  }
-
-  /**
-   * Creates the actual client implementation of the Konnektors {@link PHRManagementServicePortType}
-   * interface.<br>
-   * Endpoint of the Konnektor Service to talk to is retrieved from the information in the {@link
-   * ConnectorServices} bean.
-   *
-   * @return PHRManagementServicePortType_V2_0_1 implementation
-   */
-  private PHRManagementServicePortType createPHRManagementService(
-      ConnectorServices connectorServices) {
-    return getClientProxyImpl(
-        PHRManagementServicePortType.class,
-        SOAP12HTTP_BINDING,
-        readServiceEndpoint(
-            connectorServices,
-            PHRManagementService.SERVICE.getLocalPart(),
-            "2.5.2",
-            "2.5.3",
-            "2.5"),
-        jaxWsProxyFactory -> jaxWsProxyFactory.getFeatures().add(new WSAddressingFeature()));
-  }
-
-  /**
-   * Creates the actual client implementation of the Konnektors {@link SignatureServicePortType}
-   * interface.<br>
-   * Endpoint of the Konnektor Service to talk to is retrieved from the information in the {@link
-   * ConnectorServices} bean.
-   *
-   * @return SignatureServicePortType implementation
-   */
-  private SignatureServicePortType createSignatureService(ConnectorServices connectorServices) {
-    return getClientProxyImpl(
-        SignatureServicePortType.class,
-        SOAP11HTTP_BINDING,
-        readServiceEndpoint(connectorServices, SignatureService.SERVICE.getLocalPart(), "7.5", "7"),
-        jaxWsProxyFactory ->
-            XmlUtils.registerObjectFactory(jaxWsProxyFactory, ObjectFactory.class));
-  }
-
-  /**
    * Creates the actual client implementation of the Konnektors {@link EventServicePortType}
    * interface.<br>
    * Endpoint of the Konnektor Service to talk to is retrieved from the information in the {@link
@@ -272,20 +187,6 @@ public class KonnektorConnectionFactoryImpl implements KonnektorConnectionFactor
     return getClientProxyImpl(
         EventServicePortType.class,
         readServiceEndpoint(connectorServices, EventService.SERVICE.getLocalPart(), ""));
-  }
-
-  /**
-   * Creates the actual client implementation of the Konnektors {@link VSDServicePortType}
-   * interface.<br>
-   * Endpoint of the Konnektor Service to talk to is retrieved from the information in the {@link
-   * ConnectorServices} bean.
-   *
-   * @return VSDServicePortType implementation
-   */
-  private VSDServicePortType createVSDService(ConnectorServices connectorServices) {
-    return getClientProxyImpl(
-        VSDServicePortType.class,
-        readServiceEndpoint(connectorServices, VSDService.SERVICE.getLocalPart(), ""));
   }
 
   /**
