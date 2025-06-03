@@ -1,5 +1,8 @@
 [![Maven Central Version](https://img.shields.io/maven-central/v/com.oviva.epa/diga-epa-lib)](https://central.sonatype.com/artifact/com.oviva.epa/diga-epa-client)
 
+> [!IMPORTANT]  
+> This library targets ePA 2.6, see [here for an ePA 3.x client](https://github.com/oviva-ag/epa4all-client)
+
 # Electronic Health Record (ePA) Library for DiGA Use Cases
 
 This library interacts with the Telematik-Infrastuktur (TI) via a Konnektor to write structured HL7/FHIR bundles for
